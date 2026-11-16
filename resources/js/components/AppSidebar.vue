@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, Settings, ShieldCheck } from '@lucide/vue';
+import { LayoutGrid, Settings, ShieldCheck, Users } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -17,6 +17,7 @@ import {
 import { dashboard } from '@/routes';
 import { edit as editSchoolPermissions } from '@/routes/school/permissions';
 import { edit as editSchoolSettings } from '@/routes/school/settings';
+import { index as users } from '@/routes/school/users';
 import type { NavItem } from '@/types';
 
 const page = usePage();
@@ -29,12 +30,25 @@ const canManagePermissions = computed(() =>
     page.props.auth.permissions.includes('roles.manage'),
 );
 
+const canViewUsers = computed(() =>
+    page.props.auth.permissions.includes('users.view'),
+);
+
 const mainNavItems = computed<NavItem[]>(() => [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
     },
+    ...(canViewUsers.value
+        ? [
+              {
+                  title: 'Users',
+                  href: users(),
+                  icon: Users,
+              },
+          ]
+        : []),
     ...(canManageSettings.value
         ? [
               {
