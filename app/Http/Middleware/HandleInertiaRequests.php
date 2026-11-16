@@ -2,7 +2,9 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -35,11 +37,24 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $logoPath = Setting::get('school.logo_path');
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'school' => [
+                'name' => Setting::get('school.name', config('app.name')),
+                'short_name' => Setting::get('school.short_name'),
+                'logo_url' => $logoPath ? Storage::disk('public')->url($logoPath) : null,
+                'timezone' => Setting::get('school.timezone', config('app.timezone')),
+                'date_format' => Setting::get('school.date_format', 'd/m/Y'),
+            ],
             'auth' => [
                 'user' => $request->user(),
+                'permissions' => $request->user()?->getAllPermissions()->pluck('name')->all() ?? [],
+            ],
+            'flash' => [
+                'toast' => fn () => $request->session()->get('toast'),
             ],
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];

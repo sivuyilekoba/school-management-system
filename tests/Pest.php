@@ -20,6 +20,22 @@ pest()->extend(TestCase::class)
 
 /*
 |--------------------------------------------------------------------------
+| Cache & Assets
+|--------------------------------------------------------------------------
+|
+| Settings are cached forever, so the array cache store must be flushed
+| between tests or stale values leak across database refreshes. Feature
+| tests also must not depend on a built Vite manifest.
+|
+*/
+
+pest()->beforeEach(function () {
+    cache()->flush();
+    $this->withoutVite();
+})->in('Feature');
+
+/*
+|--------------------------------------------------------------------------
 | Expectations
 |--------------------------------------------------------------------------
 |
