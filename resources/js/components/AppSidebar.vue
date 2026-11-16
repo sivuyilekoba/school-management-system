@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
-import { LayoutGrid, Settings } from '@lucide/vue';
+import { LayoutGrid, Settings, ShieldCheck } from '@lucide/vue';
 import { computed } from 'vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,6 +15,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { edit as editSchoolPermissions } from '@/routes/school/permissions';
 import { edit as editSchoolSettings } from '@/routes/school/settings';
 import type { NavItem } from '@/types';
 
@@ -22,6 +23,10 @@ const page = usePage();
 
 const canManageSettings = computed(() =>
     page.props.auth.permissions.includes('settings.manage'),
+);
+
+const canManagePermissions = computed(() =>
+    page.props.auth.permissions.includes('roles.manage'),
 );
 
 const mainNavItems = computed<NavItem[]>(() => [
@@ -36,6 +41,15 @@ const mainNavItems = computed<NavItem[]>(() => [
                   title: 'School settings',
                   href: editSchoolSettings(),
                   icon: Settings,
+              },
+          ]
+        : []),
+    ...(canManagePermissions.value
+        ? [
+              {
+                  title: 'Permissions',
+                  href: editSchoolPermissions(),
+                  icon: ShieldCheck,
               },
           ]
         : []),
