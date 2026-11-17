@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import ClassEnrolmentController from '@/actions/App/Http/Controllers/School/ClassEnrolmentController';
 import CourseForm from '@/components/CourseForm.vue';
 import type { CourseRecord } from '@/components/CourseForm.vue';
 import Heading from '@/components/Heading.vue';
@@ -14,6 +15,7 @@ type ClassRow = {
     id: number;
     name: string;
     teacher: string | null;
+    students_count: number;
 };
 
 defineProps<{
@@ -84,6 +86,12 @@ defineOptions({
                             </th>
                             <th
                                 scope="col"
+                                class="px-4 py-3 text-left font-medium"
+                            >
+                                Students
+                            </th>
+                            <th
+                                scope="col"
                                 class="px-4 py-3 text-right font-medium"
                             >
                                 <span class="sr-only">Actions</span>
@@ -107,18 +115,33 @@ defineOptions({
                                     No teacher
                                 </span>
                             </td>
+                            <td class="px-4 py-3 text-muted-foreground">
+                                {{ courseClass.students_count }}
+                            </td>
                             <td class="px-4 py-3 text-right">
-                                <Link
-                                    :href="editClass(courseClass.id)"
-                                    class="text-sm font-medium underline-offset-4 hover:underline"
-                                >
-                                    Edit
-                                </Link>
+                                <div class="flex justify-end gap-3">
+                                    <Link
+                                        :href="
+                                            ClassEnrolmentController.index.url(
+                                                courseClass.id,
+                                            )
+                                        "
+                                        class="text-sm font-medium underline-offset-4 hover:underline"
+                                    >
+                                        Students
+                                    </Link>
+                                    <Link
+                                        :href="editClass(courseClass.id)"
+                                        class="text-sm font-medium underline-offset-4 hover:underline"
+                                    >
+                                        Edit
+                                    </Link>
+                                </div>
                             </td>
                         </tr>
                         <tr v-if="!classes.length">
                             <td
-                                colspan="3"
+                                colspan="4"
                                 class="px-4 py-8 text-center text-muted-foreground"
                             >
                                 No classes yet.

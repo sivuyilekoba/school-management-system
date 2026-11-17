@@ -81,12 +81,14 @@ class CourseController extends Controller
             ],
             'classes' => $course->classes()
                 ->with('staff:id,first_name,surname,preferred_name')
+                ->withCount('students')
                 ->orderBy('name')
                 ->get()
                 ->map(fn (CourseClass $class): array => [
                     'id' => $class->id,
                     'name' => $class->name,
                     'teacher' => $class->staff?->displayName(),
+                    'students_count' => $class->students_count,
                 ])
                 ->all(),
         ]);

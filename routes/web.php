@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\School\ClassEnrolmentController;
 use App\Http\Controllers\School\CourseClassController;
 use App\Http\Controllers\School\CourseController;
 use App\Http\Controllers\School\FamilyController;
@@ -187,6 +188,18 @@ Route::middleware(['auth'])->group(function () {
     Route::put('school/classes/{courseClass}', [CourseClassController::class, 'update'])
         ->middleware('can:curriculum.manage')
         ->name('school.classes.update');
+
+    Route::get('school/classes/{courseClass}/students', [ClassEnrolmentController::class, 'index'])
+        ->middleware('can:curriculum.view')
+        ->name('school.classes.students.index');
+
+    Route::post('school/classes/{courseClass}/students', [ClassEnrolmentController::class, 'store'])
+        ->middleware('can:curriculum.enrolment.manage')
+        ->name('school.classes.students.store');
+
+    Route::delete('school/classes/{courseClass}/students/{student}', [ClassEnrolmentController::class, 'destroy'])
+        ->middleware('can:curriculum.enrolment.manage')
+        ->name('school.classes.students.destroy');
 
     Route::get('school/timetable', [TimetableController::class, 'index'])
         ->middleware('can:timetable.view')

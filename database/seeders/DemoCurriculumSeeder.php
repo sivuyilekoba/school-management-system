@@ -3,8 +3,10 @@
 namespace Database\Seeders;
 
 use App\Models\Course;
+use App\Models\CourseClass;
 use App\Models\SchoolYear;
 use App\Models\Staff;
+use App\Models\Student;
 use Illuminate\Database\Seeder;
 
 class DemoCurriculumSeeder extends Seeder
@@ -69,6 +71,46 @@ class DemoCurriculumSeeder extends Seeder
 
                 $classIndex++;
             }
+        }
+
+        $this->enrolDemoStudents();
+    }
+
+    /**
+     * Enrol the demo students in a few classes.
+     */
+    private function enrolDemoStudents(): void
+    {
+        $students = Student::query()->orderBy('id')->get()->values();
+
+        if ($students->isEmpty()) {
+            return;
+        }
+
+        $enrolments = [
+            ['course' => 'Mathematics', 'class' => 'A', 'students' => [0, 1, 2]],
+            ['course' => 'Mathematics', 'class' => 'B', 'students' => [3, 4, 5]],
+            ['course' => 'English', 'class' => 'A', 'students' => [0, 1, 2, 3]],
+            ['course' => 'Science', 'class' => 'A', 'students' => [0, 1, 2]],
+            ['course' => 'History', 'class' => 'A', 'students' => [3, 4, 5]],
+        ];
+
+        foreach ($enrolments as $enrolment) {
+            $courseClass = CourseClass::query()
+                ->where('name', $enrolment['class'])
+                ->whereHas('course', fn ($query) => $query->where('name', $enrolment['course']))
+                ->first();
+
+            if ($courseClass === null) {
+                continue;
+            }
+
+            $studentIds = array_values(array_intersect_key(
+                $students->pluck('id')->all(),
+                array_flip($enrolment['students']),
+            ));
+
+            $courseClass->students()->syncWithoutDetaching($studentIds);
         }
     }
 }

@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -69,6 +71,26 @@ class Student extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The class enrolments for this student.
+     *
+     * @return HasMany<Enrolment, $this>
+     */
+    public function enrolments(): HasMany
+    {
+        return $this->hasMany(Enrolment::class);
+    }
+
+    /**
+     * The classes this student is enrolled in.
+     *
+     * @return BelongsToMany<CourseClass, $this>
+     */
+    public function courseClasses(): BelongsToMany
+    {
+        return $this->belongsToMany(CourseClass::class, 'enrolments')->withTimestamps();
     }
 
     /**

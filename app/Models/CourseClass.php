@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
@@ -19,6 +20,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read Course $course
  * @property-read Staff|null $staff
+ * @property-read int $students_count
  */
 #[Fillable(['course_id', 'staff_id', 'name'])]
 class CourseClass extends Model
@@ -54,6 +56,26 @@ class CourseClass extends Model
     public function timetableEntries(): HasMany
     {
         return $this->hasMany(TimetableEntry::class);
+    }
+
+    /**
+     * The enrolment records for this class.
+     *
+     * @return HasMany<Enrolment, $this>
+     */
+    public function enrolments(): HasMany
+    {
+        return $this->hasMany(Enrolment::class);
+    }
+
+    /**
+     * The students enrolled in this class.
+     *
+     * @return BelongsToMany<Student, $this>
+     */
+    public function students(): BelongsToMany
+    {
+        return $this->belongsToMany(Student::class, 'enrolments')->withTimestamps();
     }
 
     /**
