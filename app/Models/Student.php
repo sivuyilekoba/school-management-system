@@ -1,0 +1,83 @@
+<?php
+
+namespace App\Models;
+
+use Database\Factories\StudentFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Carbon;
+
+/**
+ * @property int $id
+ * @property int|null $family_id
+ * @property int|null $user_id
+ * @property string $first_name
+ * @property string $surname
+ * @property string|null $preferred_name
+ * @property string $gender
+ * @property Carbon|null $date_of_birth
+ * @property string|null $email
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
+ * @property-read Family|null $family
+ * @property-read User|null $user
+ */
+#[Fillable([
+    'family_id',
+    'user_id',
+    'first_name',
+    'surname',
+    'preferred_name',
+    'gender',
+    'date_of_birth',
+    'email',
+])]
+class Student extends Model
+{
+    /** @use HasFactory<StudentFactory> */
+    use HasFactory;
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'date_of_birth' => 'date',
+        ];
+    }
+
+    /**
+     * The family this student belongs to.
+     *
+     * @return BelongsTo<Family, $this>
+     */
+    public function family(): BelongsTo
+    {
+        return $this->belongsTo(Family::class);
+    }
+
+    /**
+     * The user account linked to this student, if any.
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * The name shown in lists and headings.
+     */
+    public function displayName(): string
+    {
+        $first = $this->preferred_name ?: $this->first_name;
+
+        return trim($first.' '.$this->surname);
+    }
+}
