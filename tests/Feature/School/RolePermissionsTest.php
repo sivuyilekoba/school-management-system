@@ -49,7 +49,7 @@ test('administrators can view the permission matrix', function () {
         ->assertOk()
         ->assertInertia(fn (Assert $page) => $page
             ->component('school/permissions/Edit')
-            ->has('modules', 7)
+            ->has('modules', 8)
             ->has('roles', 4)
             ->has('assignments', 4)
             ->where('roles.0.name', 'Parent')

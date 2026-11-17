@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { Link, usePage } from '@inertiajs/vue3';
 import {
+    BookOpen,
     Briefcase,
+    CalendarDays,
     GraduationCap,
     House,
     LayoutGrid,
@@ -23,6 +25,8 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as calendar } from '@/routes/school/calendar';
+import { index as courses } from '@/routes/school/courses';
 import { index as families } from '@/routes/school/families';
 import { edit as editSchoolPermissions } from '@/routes/school/permissions';
 import { edit as editSchoolSettings } from '@/routes/school/settings';
@@ -57,12 +61,38 @@ const canViewFamilies = computed(() =>
     page.props.auth.permissions.includes('people.families.view'),
 );
 
+const canViewCalendar = computed(() =>
+    page.props.auth.permissions.includes('calendar.view'),
+);
+
+const canViewCourses = computed(() =>
+    page.props.auth.permissions.includes('curriculum.view'),
+);
+
 const mainNavItems = computed<NavItem[]>(() => [
     {
         title: 'Dashboard',
         href: dashboard(),
         icon: LayoutGrid,
     },
+    ...(canViewCalendar.value
+        ? [
+              {
+                  title: 'Calendar',
+                  href: calendar(),
+                  icon: CalendarDays,
+              },
+          ]
+        : []),
+    ...(canViewCourses.value
+        ? [
+              {
+                  title: 'Courses',
+                  href: courses(),
+                  icon: BookOpen,
+              },
+          ]
+        : []),
     ...(canViewStudents.value
         ? [
               {

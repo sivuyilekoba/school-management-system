@@ -24,6 +24,14 @@ return [
         ],
     ],
     [
+        'name' => 'Academic calendar',
+        'description' => 'School years and terms.',
+        'permissions' => [
+            'calendar.view' => 'View school years and terms',
+            'calendar.manage' => 'Manage school years and terms',
+        ],
+    ],
+    [
         'name' => 'People',
         'description' => 'Students, staff and family records.',
         'permissions' => [
