@@ -3,6 +3,7 @@ import { Link, usePage } from '@inertiajs/vue3';
 import {
     BookOpen,
     Briefcase,
+    CalendarClock,
     CalendarDays,
     GraduationCap,
     House,
@@ -32,6 +33,7 @@ import { edit as editSchoolPermissions } from '@/routes/school/permissions';
 import { edit as editSchoolSettings } from '@/routes/school/settings';
 import { index as staff } from '@/routes/school/staff';
 import { index as students } from '@/routes/school/students';
+import { index as timetable } from '@/routes/school/timetable';
 import { index as users } from '@/routes/school/users';
 import type { NavItem } from '@/types';
 
@@ -69,6 +71,10 @@ const canViewCourses = computed(() =>
     page.props.auth.permissions.includes('curriculum.view'),
 );
 
+const canViewTimetable = computed(() =>
+    page.props.auth.permissions.includes('timetable.view'),
+);
+
 const mainNavItems = computed<NavItem[]>(() => [
     {
         title: 'Dashboard',
@@ -90,6 +96,15 @@ const mainNavItems = computed<NavItem[]>(() => [
                   title: 'Courses',
                   href: courses(),
                   icon: BookOpen,
+              },
+          ]
+        : []),
+    ...(canViewTimetable.value
+        ? [
+              {
+                  title: 'Timetable',
+                  href: timetable(),
+                  icon: CalendarClock,
               },
           ]
         : []),

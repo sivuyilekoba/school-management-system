@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 
 /**
@@ -43,6 +44,16 @@ class CourseClass extends Model
     public function staff(): BelongsTo
     {
         return $this->belongsTo(Staff::class);
+    }
+
+    /**
+     * The timetable lessons scheduled for this class.
+     *
+     * @return HasMany<TimetableEntry, $this>
+     */
+    public function timetableEntries(): HasMany
+    {
+        return $this->hasMany(TimetableEntry::class);
     }
 
     /**

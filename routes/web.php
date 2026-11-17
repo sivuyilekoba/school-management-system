@@ -9,6 +9,9 @@ use App\Http\Controllers\School\SchoolYearController;
 use App\Http\Controllers\School\StaffController;
 use App\Http\Controllers\School\StudentController;
 use App\Http\Controllers\School\TermController;
+use App\Http\Controllers\School\TimetableController;
+use App\Http\Controllers\School\TimetableEntryController;
+use App\Http\Controllers\School\TimetablePeriodController;
 use App\Http\Controllers\School\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -184,6 +187,50 @@ Route::middleware(['auth'])->group(function () {
     Route::put('school/classes/{courseClass}', [CourseClassController::class, 'update'])
         ->middleware('can:curriculum.manage')
         ->name('school.classes.update');
+
+    Route::get('school/timetable', [TimetableController::class, 'index'])
+        ->middleware('can:timetable.view')
+        ->name('school.timetable.index');
+
+    Route::get('school/timetable/periods', [TimetablePeriodController::class, 'index'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.periods.index');
+
+    Route::get('school/timetable/periods/create', [TimetablePeriodController::class, 'create'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.periods.create');
+
+    Route::post('school/timetable/periods', [TimetablePeriodController::class, 'store'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.periods.store');
+
+    Route::get('school/timetable/periods/{period}/edit', [TimetablePeriodController::class, 'edit'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.periods.edit');
+
+    Route::put('school/timetable/periods/{period}', [TimetablePeriodController::class, 'update'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.periods.update');
+
+    Route::get('school/timetable/classes/{courseClass}/entries/create', [TimetableEntryController::class, 'create'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.entries.create');
+
+    Route::post('school/timetable/classes/{courseClass}/entries', [TimetableEntryController::class, 'store'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.entries.store');
+
+    Route::get('school/timetable/entries/{entry}/edit', [TimetableEntryController::class, 'edit'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.entries.edit');
+
+    Route::put('school/timetable/entries/{entry}', [TimetableEntryController::class, 'update'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.entries.update');
+
+    Route::delete('school/timetable/entries/{entry}', [TimetableEntryController::class, 'destroy'])
+        ->middleware('can:timetable.manage')
+        ->name('school.timetable.entries.destroy');
 });
 
 require __DIR__.'/settings.php';
