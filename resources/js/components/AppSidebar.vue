@@ -6,6 +6,7 @@ import {
     CalendarClock,
     CalendarDays,
     ClipboardCheck,
+    ClipboardList,
     GraduationCap,
     House,
     LayoutGrid,
@@ -27,6 +28,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as assessment } from '@/routes/school/assessment';
 import { index as attendance } from '@/routes/school/attendance';
 import { index as calendar } from '@/routes/school/calendar';
 import { index as courses } from '@/routes/school/courses';
@@ -81,6 +83,10 @@ const canViewAttendance = computed(() =>
     page.props.auth.permissions.includes('attendance.view'),
 );
 
+const canViewAssessment = computed(() =>
+    page.props.auth.permissions.includes('assessment.view'),
+);
+
 const mainNavItems = computed<NavItem[]>(() => [
     {
         title: 'Dashboard',
@@ -120,6 +126,15 @@ const mainNavItems = computed<NavItem[]>(() => [
                   title: 'Attendance',
                   href: attendance(),
                   icon: ClipboardCheck,
+              },
+          ]
+        : []),
+    ...(canViewAssessment.value
+        ? [
+              {
+                  title: 'Assessment',
+                  href: assessment(),
+                  icon: ClipboardList,
               },
           ]
         : []),

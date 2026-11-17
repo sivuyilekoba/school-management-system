@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\School\AssessmentController;
 use App\Http\Controllers\School\AttendanceController;
 use App\Http\Controllers\School\ClassEnrolmentController;
 use App\Http\Controllers\School\CourseClassController;
@@ -257,6 +258,42 @@ Route::middleware(['auth'])->group(function () {
     Route::put('school/attendance/classes/{courseClass}', [AttendanceController::class, 'save'])
         ->middleware('can:attendance.record')
         ->name('school.attendance.save');
+
+    Route::get('school/assessment', [AssessmentController::class, 'index'])
+        ->middleware('can:assessment.view')
+        ->name('school.assessment.index');
+
+    Route::get('school/assessment/classes/{courseClass}', [AssessmentController::class, 'classIndex'])
+        ->middleware('can:assessment.view')
+        ->name('school.assessment.classes.index');
+
+    Route::get('school/assessment/classes/{courseClass}/assessments/create', [AssessmentController::class, 'create'])
+        ->middleware('can:assessment.manage')
+        ->name('school.assessment.assessments.create');
+
+    Route::post('school/assessment/classes/{courseClass}/assessments', [AssessmentController::class, 'store'])
+        ->middleware('can:assessment.manage')
+        ->name('school.assessment.assessments.store');
+
+    Route::get('school/assessment/assessments/{assessment}/edit', [AssessmentController::class, 'edit'])
+        ->middleware('can:assessment.manage')
+        ->name('school.assessment.assessments.edit');
+
+    Route::put('school/assessment/assessments/{assessment}', [AssessmentController::class, 'update'])
+        ->middleware('can:assessment.manage')
+        ->name('school.assessment.assessments.update');
+
+    Route::delete('school/assessment/assessments/{assessment}', [AssessmentController::class, 'destroy'])
+        ->middleware('can:assessment.manage')
+        ->name('school.assessment.assessments.destroy');
+
+    Route::get('school/assessment/assessments/{assessment}/marks', [AssessmentController::class, 'marks'])
+        ->middleware('can:assessment.view')
+        ->name('school.assessment.marks');
+
+    Route::put('school/assessment/assessments/{assessment}/marks', [AssessmentController::class, 'saveMarks'])
+        ->middleware('can:assessment.manage')
+        ->name('school.assessment.marks.save');
 });
 
 require __DIR__.'/settings.php';

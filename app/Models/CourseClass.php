@@ -21,6 +21,7 @@ use Illuminate\Support\Carbon;
  * @property-read Course $course
  * @property-read Staff|null $staff
  * @property-read int $students_count
+ * @property-read int $assessments_count
  */
 #[Fillable(['course_id', 'staff_id', 'name'])]
 class CourseClass extends Model
@@ -86,6 +87,16 @@ class CourseClass extends Model
     public function attendanceRegisters(): HasMany
     {
         return $this->hasMany(AttendanceRegister::class);
+    }
+
+    /**
+     * The assessments set for this class.
+     *
+     * @return HasMany<Assessment, $this>
+     */
+    public function assessments(): HasMany
+    {
+        return $this->hasMany(Assessment::class);
     }
 
     /**

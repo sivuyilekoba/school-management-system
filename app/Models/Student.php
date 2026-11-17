@@ -104,6 +104,16 @@ class Student extends Model
     }
 
     /**
+     * The assessment marks recorded for this student.
+     *
+     * @return HasMany<AssessmentMark, $this>
+     */
+    public function assessmentMarks(): HasMany
+    {
+        return $this->hasMany(AssessmentMark::class);
+    }
+
+    /**
      * The name shown in lists and headings.
      */
     public function displayName(): string
