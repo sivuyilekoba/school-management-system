@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\School\AttendanceController;
 use App\Http\Controllers\School\ClassEnrolmentController;
 use App\Http\Controllers\School\CourseClassController;
 use App\Http\Controllers\School\CourseController;
@@ -244,6 +245,18 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('school/timetable/entries/{entry}', [TimetableEntryController::class, 'destroy'])
         ->middleware('can:timetable.manage')
         ->name('school.timetable.entries.destroy');
+
+    Route::get('school/attendance', [AttendanceController::class, 'index'])
+        ->middleware('can:attendance.view')
+        ->name('school.attendance.index');
+
+    Route::get('school/attendance/classes/{courseClass}', [AttendanceController::class, 'show'])
+        ->middleware('can:attendance.view')
+        ->name('school.attendance.show');
+
+    Route::put('school/attendance/classes/{courseClass}', [AttendanceController::class, 'save'])
+        ->middleware('can:attendance.record')
+        ->name('school.attendance.save');
 });
 
 require __DIR__.'/settings.php';

@@ -79,6 +79,16 @@ class CourseClass extends Model
     }
 
     /**
+     * The attendance registers taken for this class.
+     *
+     * @return HasMany<AttendanceRegister, $this>
+     */
+    public function attendanceRegisters(): HasMany
+    {
+        return $this->hasMany(AttendanceRegister::class);
+    }
+
+    /**
      * The label shown in lists and headings.
      */
     public function displayName(): string

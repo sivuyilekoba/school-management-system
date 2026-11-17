@@ -5,6 +5,7 @@ import {
     Briefcase,
     CalendarClock,
     CalendarDays,
+    ClipboardCheck,
     GraduationCap,
     House,
     LayoutGrid,
@@ -26,6 +27,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as attendance } from '@/routes/school/attendance';
 import { index as calendar } from '@/routes/school/calendar';
 import { index as courses } from '@/routes/school/courses';
 import { index as families } from '@/routes/school/families';
@@ -75,6 +77,10 @@ const canViewTimetable = computed(() =>
     page.props.auth.permissions.includes('timetable.view'),
 );
 
+const canViewAttendance = computed(() =>
+    page.props.auth.permissions.includes('attendance.view'),
+);
+
 const mainNavItems = computed<NavItem[]>(() => [
     {
         title: 'Dashboard',
@@ -105,6 +111,15 @@ const mainNavItems = computed<NavItem[]>(() => [
                   title: 'Timetable',
                   href: timetable(),
                   icon: CalendarClock,
+              },
+          ]
+        : []),
+    ...(canViewAttendance.value
+        ? [
+              {
+                  title: 'Attendance',
+                  href: attendance(),
+                  icon: ClipboardCheck,
               },
           ]
         : []),

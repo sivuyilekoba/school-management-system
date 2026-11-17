@@ -94,6 +94,16 @@ class Student extends Model
     }
 
     /**
+     * The attendance marks recorded for this student.
+     *
+     * @return HasMany<AttendanceRecord, $this>
+     */
+    public function attendanceRecords(): HasMany
+    {
+        return $this->hasMany(AttendanceRecord::class);
+    }
+
+    /**
      * The name shown in lists and headings.
      */
     public function displayName(): string
