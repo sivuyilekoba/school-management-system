@@ -6,6 +6,7 @@ use App\Http\Controllers\School\ClassEnrolmentController;
 use App\Http\Controllers\School\CourseClassController;
 use App\Http\Controllers\School\CourseController;
 use App\Http\Controllers\School\FamilyController;
+use App\Http\Controllers\School\ReportCardController;
 use App\Http\Controllers\School\RolePermissionsController;
 use App\Http\Controllers\School\SchoolSettingsController;
 use App\Http\Controllers\School\SchoolYearController;
@@ -294,6 +295,34 @@ Route::middleware(['auth'])->group(function () {
     Route::put('school/assessment/assessments/{assessment}/marks', [AssessmentController::class, 'saveMarks'])
         ->middleware('can:assessment.manage')
         ->name('school.assessment.marks.save');
+
+    Route::get('school/reports', [ReportCardController::class, 'index'])
+        ->middleware('can:reports.view')
+        ->name('school.reports.index');
+
+    Route::get('school/reports/students/{student}/terms/{term}', [ReportCardController::class, 'show'])
+        ->middleware('can:reports.view')
+        ->name('school.reports.show');
+
+    Route::get('school/reports/students/{student}/terms/{term}/print', [ReportCardController::class, 'print'])
+        ->middleware('can:reports.view')
+        ->name('school.reports.print');
+
+    Route::get('school/reports/students/{student}/terms/{term}/pdf', [ReportCardController::class, 'pdf'])
+        ->middleware('can:reports.view')
+        ->name('school.reports.pdf');
+
+    Route::put('school/reports/students/{student}/terms/{term}/comment', [ReportCardController::class, 'saveComment'])
+        ->middleware('can:reports.publish')
+        ->name('school.reports.comment.update');
+
+    Route::put('school/reports/students/{student}/terms/{term}/publish', [ReportCardController::class, 'publish'])
+        ->middleware('can:reports.publish')
+        ->name('school.reports.publish');
+
+    Route::delete('school/reports/students/{student}/terms/{term}/publish', [ReportCardController::class, 'unpublish'])
+        ->middleware('can:reports.publish')
+        ->name('school.reports.unpublish');
 });
 
 require __DIR__.'/settings.php';

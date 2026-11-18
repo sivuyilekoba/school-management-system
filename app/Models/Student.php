@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Database\Factories\StudentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,6 +26,8 @@ use Illuminate\Support\Carbon;
  * @property Carbon|null $updated_at
  * @property-read Family|null $family
  * @property-read User|null $user
+ * @property-read int $enrolments_count
+ * @property-read Collection<int, ReportCard> $reportCards
  */
 #[Fillable([
     'family_id',
@@ -111,6 +114,16 @@ class Student extends Model
     public function assessmentMarks(): HasMany
     {
         return $this->hasMany(AssessmentMark::class);
+    }
+
+    /**
+     * The report cards written for this student.
+     *
+     * @return HasMany<ReportCard, $this>
+     */
+    public function reportCards(): HasMany
+    {
+        return $this->hasMany(ReportCard::class);
     }
 
     /**

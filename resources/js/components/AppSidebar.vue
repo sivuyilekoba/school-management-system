@@ -7,6 +7,7 @@ import {
     CalendarDays,
     ClipboardCheck,
     ClipboardList,
+    FileText,
     GraduationCap,
     House,
     LayoutGrid,
@@ -34,6 +35,7 @@ import { index as calendar } from '@/routes/school/calendar';
 import { index as courses } from '@/routes/school/courses';
 import { index as families } from '@/routes/school/families';
 import { edit as editSchoolPermissions } from '@/routes/school/permissions';
+import { index as reports } from '@/routes/school/reports';
 import { edit as editSchoolSettings } from '@/routes/school/settings';
 import { index as staff } from '@/routes/school/staff';
 import { index as students } from '@/routes/school/students';
@@ -87,6 +89,10 @@ const canViewAssessment = computed(() =>
     page.props.auth.permissions.includes('assessment.view'),
 );
 
+const canViewReports = computed(() =>
+    page.props.auth.permissions.includes('reports.view'),
+);
+
 const mainNavItems = computed<NavItem[]>(() => [
     {
         title: 'Dashboard',
@@ -135,6 +141,15 @@ const mainNavItems = computed<NavItem[]>(() => [
                   title: 'Assessment',
                   href: assessment(),
                   icon: ClipboardList,
+              },
+          ]
+        : []),
+    ...(canViewReports.value
+        ? [
+              {
+                  title: 'Report cards',
+                  href: reports(),
+                  icon: FileText,
               },
           ]
         : []),

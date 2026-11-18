@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
                 DemoTimetableSeeder::class,
                 DemoAttendanceSeeder::class,
                 DemoAssessmentSeeder::class,
+                DemoReportCardSeeder::class,
             ]);
         }
     }
