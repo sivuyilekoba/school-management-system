@@ -199,7 +199,7 @@
     @unless ($forPdf)
         <div class="toolbar">
             <button type="button" onclick="window.print()">Print</button>
-            <a href="{{ route('school.reports.show', ['student' => $student['id'], 'term' => $term['id']]) }}">
+            <a href="{{ $backUrl }}">
                 Back to report card
             </a>
         </div>

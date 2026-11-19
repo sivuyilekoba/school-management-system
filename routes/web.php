@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MessageController;
+use App\Http\Controllers\Portal\AnnouncementController as PortalAnnouncementController;
+use App\Http\Controllers\Portal\PortalController;
+use App\Http\Controllers\Portal\ReportCardController as PortalReportCardController;
 use App\Http\Controllers\School\AnnouncementController;
 use App\Http\Controllers\School\AssessmentController;
 use App\Http\Controllers\School\AttendanceController;
@@ -18,12 +23,14 @@ use App\Http\Controllers\School\TimetableController;
 use App\Http\Controllers\School\TimetableEntryController;
 use App\Http\Controllers\School\TimetablePeriodController;
 use App\Http\Controllers\School\UserController;
+use App\Http\Middleware\EnsureMessagingAccess;
+use App\Http\Middleware\EnsurePortalUser;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/dashboard')->name('home');
 
 Route::middleware(['auth'])->group(function () {
-    Route::inertia('dashboard', 'Dashboard')->name('dashboard');
+    Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('school/settings', [SchoolSettingsController::class, 'edit'])
         ->middleware('can:settings.manage')
@@ -81,6 +88,10 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('can:people.students.manage')
         ->name('school.students.update');
 
+    Route::post('school/students/{student}/login', [StudentController::class, 'storeLogin'])
+        ->middleware('can:people.students.manage')
+        ->name('school.students.login.store');
+
     Route::get('school/staff', [StaffController::class, 'index'])
         ->middleware('can:people.staff.view')
         ->name('school.staff.index');
@@ -120,6 +131,10 @@ Route::middleware(['auth'])->group(function () {
     Route::put('school/families/{family}', [FamilyController::class, 'update'])
         ->middleware('can:people.families.manage')
         ->name('school.families.update');
+
+    Route::post('school/families/{family}/login', [FamilyController::class, 'storeLogin'])
+        ->middleware('can:people.families.manage')
+        ->name('school.families.login.store');
 
     Route::get('school/calendar', [SchoolYearController::class, 'index'])
         ->middleware('can:calendar.view')
@@ -360,6 +375,46 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('school/announcements/{announcement}/publish', [AnnouncementController::class, 'unpublish'])
         ->middleware('can:announcements.manage')
         ->name('school.announcements.unpublish');
+
+    Route::middleware(EnsureMessagingAccess::class)->group(function (): void {
+        Route::get('messages', [MessageController::class, 'index'])
+            ->name('messages.index');
+
+        Route::get('messages/create', [MessageController::class, 'create'])
+            ->name('messages.create');
+
+        Route::post('messages', [MessageController::class, 'store'])
+            ->name('messages.store');
+
+        Route::get('messages/{user}', [MessageController::class, 'show'])
+            ->name('messages.show');
+    });
+
+    Route::middleware(EnsurePortalUser::class)
+        ->prefix('portal')
+        ->name('portal.')
+        ->group(function (): void {
+            Route::get('/', [PortalController::class, 'index'])
+                ->name('dashboard');
+
+            Route::get('announcements', [PortalAnnouncementController::class, 'index'])
+                ->name('announcements.index');
+
+            Route::get('announcements/{announcement}', [PortalAnnouncementController::class, 'show'])
+                ->name('announcements.show');
+
+            Route::get('reports', [PortalReportCardController::class, 'index'])
+                ->name('reports.index');
+
+            Route::get('reports/students/{student}/terms/{term}', [PortalReportCardController::class, 'show'])
+                ->name('reports.show');
+
+            Route::get('reports/students/{student}/terms/{term}/print', [PortalReportCardController::class, 'print'])
+                ->name('reports.print');
+
+            Route::get('reports/students/{student}/terms/{term}/pdf', [PortalReportCardController::class, 'pdf'])
+                ->name('reports.pdf');
+        });
 });
 
 require __DIR__.'/settings.php';

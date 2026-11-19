@@ -84,6 +84,7 @@ return [
         'permissions' => [
             'announcements.view' => 'View announcements',
             'announcements.manage' => 'Manage announcements',
+            'messages.view' => 'View messages',
             'messages.send' => 'Send messages',
         ],
     ],

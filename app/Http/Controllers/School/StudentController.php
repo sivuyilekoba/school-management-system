@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\School;
 
 use App\Enums\Gender;
+use App\Enums\Role as RoleName;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\School\StoreStudentLoginRequest;
 use App\Http\Requests\School\StoreStudentRequest;
 use App\Http\Requests\School\UpdateStudentRequest;
 use App\Models\Family;
@@ -100,6 +102,39 @@ class StudentController extends Controller
             'families' => $this->familyOptions(),
             'accounts' => $this->accountOptions($student),
             'genders' => Gender::names(),
+            'login' => [
+                'exists' => $student->user_id !== null,
+                'email' => $student->user?->email,
+                'name' => $student->user?->name,
+            ],
+        ]);
+    }
+
+    /**
+     * Create a portal login for the given student.
+     */
+    public function storeLogin(StoreStudentLoginRequest $request, Student $student): RedirectResponse
+    {
+        if ($student->user_id !== null) {
+            return back()->with('toast', [
+                'type' => 'error',
+                'message' => 'This student already has a login account.',
+            ]);
+        }
+
+        $user = User::query()->create([
+            'name' => $student->displayName(),
+            'email' => $request->validated('email'),
+            'password' => $request->validated('password'),
+        ]);
+
+        $user->assignRole(RoleName::Student->value);
+
+        $student->update(['user_id' => $user->id]);
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Student login created.',
         ]);
     }
 

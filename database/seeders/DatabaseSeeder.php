@@ -31,6 +31,7 @@ class DatabaseSeeder extends Seeder
                 DemoAssessmentSeeder::class,
                 DemoReportCardSeeder::class,
                 DemoAnnouncementSeeder::class,
+                DemoLoginSeeder::class,
             ]);
         }
     }

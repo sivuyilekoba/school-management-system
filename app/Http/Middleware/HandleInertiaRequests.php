@@ -52,6 +52,8 @@ class HandleInertiaRequests extends Middleware
             'auth' => [
                 'user' => $request->user(),
                 'permissions' => $request->user()?->getAllPermissions()->pluck('name')->all() ?? [],
+                'roles' => $request->user()?->getRoleNames()->all() ?? [],
+                'unreadMessages' => fn (): int => $request->user()?->receivedMessages()->whereNull('read_at')->count() ?? 0,
             ],
             'flash' => [
                 'toast' => fn () => $request->session()->get('toast'),

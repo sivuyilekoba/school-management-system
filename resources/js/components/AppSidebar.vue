@@ -12,6 +12,7 @@ import {
     House,
     LayoutGrid,
     Megaphone,
+    MessageCircle,
     Settings,
     ShieldCheck,
     Users,
@@ -30,6 +31,10 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as messages } from '@/routes/messages';
+import { dashboard as portalDashboard } from '@/routes/portal';
+import { index as portalAnnouncements } from '@/routes/portal/announcements';
+import { index as portalReports } from '@/routes/portal/reports';
 import { index as announcements } from '@/routes/school/announcements';
 import { index as assessment } from '@/routes/school/assessment';
 import { index as attendance } from '@/routes/school/attendance';
@@ -99,130 +104,177 @@ const canViewAnnouncements = computed(() =>
     page.props.auth.permissions.includes('announcements.view'),
 );
 
-const mainNavItems = computed<NavItem[]>(() => [
-    {
-        title: 'Dashboard',
-        href: dashboard(),
-        icon: LayoutGrid,
-    },
-    ...(canViewCalendar.value
-        ? [
-              {
-                  title: 'Calendar',
-                  href: calendar(),
-                  icon: CalendarDays,
-              },
-          ]
-        : []),
-    ...(canViewCourses.value
-        ? [
-              {
-                  title: 'Courses',
-                  href: courses(),
-                  icon: BookOpen,
-              },
-          ]
-        : []),
-    ...(canViewTimetable.value
-        ? [
-              {
-                  title: 'Timetable',
-                  href: timetable(),
-                  icon: CalendarClock,
-              },
-          ]
-        : []),
-    ...(canViewAttendance.value
-        ? [
-              {
-                  title: 'Attendance',
-                  href: attendance(),
-                  icon: ClipboardCheck,
-              },
-          ]
-        : []),
-    ...(canViewAssessment.value
-        ? [
-              {
-                  title: 'Assessment',
-                  href: assessment(),
-                  icon: ClipboardList,
-              },
-          ]
-        : []),
-    ...(canViewReports.value
-        ? [
-              {
-                  title: 'Report cards',
-                  href: reports(),
-                  icon: FileText,
-              },
-          ]
-        : []),
-    ...(canViewAnnouncements.value
-        ? [
-              {
-                  title: 'Announcements',
-                  href: announcements(),
-                  icon: Megaphone,
-              },
-          ]
-        : []),
-    ...(canViewStudents.value
-        ? [
-              {
-                  title: 'Students',
-                  href: students(),
-                  icon: GraduationCap,
-              },
-          ]
-        : []),
-    ...(canViewStaff.value
-        ? [
-              {
-                  title: 'Staff',
-                  href: staff(),
-                  icon: Briefcase,
-              },
-          ]
-        : []),
-    ...(canViewFamilies.value
-        ? [
-              {
-                  title: 'Families',
-                  href: families(),
-                  icon: House,
-              },
-          ]
-        : []),
-    ...(canViewUsers.value
-        ? [
-              {
-                  title: 'Users',
-                  href: users(),
-                  icon: Users,
-              },
-          ]
-        : []),
-    ...(canManageSettings.value
-        ? [
-              {
-                  title: 'School settings',
-                  href: editSchoolSettings(),
-                  icon: Settings,
-              },
-          ]
-        : []),
-    ...(canManagePermissions.value
-        ? [
-              {
-                  title: 'Permissions',
-                  href: editSchoolPermissions(),
-                  icon: ShieldCheck,
-              },
-          ]
-        : []),
-]);
+const isPortalUser = computed(() => {
+    const roles = page.props.auth.roles ?? [];
+
+    return roles.includes('Student') || roles.includes('Parent');
+});
+
+const canViewMessages = computed(
+    () =>
+        isPortalUser.value ||
+        page.props.auth.permissions.includes('messages.view'),
+);
+
+const unreadMessages = computed(() => page.props.auth.unreadMessages ?? 0);
+
+const messageNavItem = computed<NavItem>(() => ({
+    title:
+        unreadMessages.value > 0
+            ? `Messages (${unreadMessages.value})`
+            : 'Messages',
+    href: messages(),
+    icon: MessageCircle,
+}));
+
+const mainNavItems = computed<NavItem[]>(() => {
+    if (isPortalUser.value) {
+        return [
+            {
+                title: 'Dashboard',
+                href: portalDashboard(),
+                icon: LayoutGrid,
+            },
+            {
+                title: 'Announcements',
+                href: portalAnnouncements(),
+                icon: Megaphone,
+            },
+            {
+                title: 'Report cards',
+                href: portalReports(),
+                icon: FileText,
+            },
+            messageNavItem.value,
+        ];
+    }
+
+    return [
+        {
+            title: 'Dashboard',
+            href: dashboard(),
+            icon: LayoutGrid,
+        },
+        ...(canViewCalendar.value
+            ? [
+                  {
+                      title: 'Calendar',
+                      href: calendar(),
+                      icon: CalendarDays,
+                  },
+              ]
+            : []),
+        ...(canViewCourses.value
+            ? [
+                  {
+                      title: 'Courses',
+                      href: courses(),
+                      icon: BookOpen,
+                  },
+              ]
+            : []),
+        ...(canViewTimetable.value
+            ? [
+                  {
+                      title: 'Timetable',
+                      href: timetable(),
+                      icon: CalendarClock,
+                  },
+              ]
+            : []),
+        ...(canViewAttendance.value
+            ? [
+                  {
+                      title: 'Attendance',
+                      href: attendance(),
+                      icon: ClipboardCheck,
+                  },
+              ]
+            : []),
+        ...(canViewAssessment.value
+            ? [
+                  {
+                      title: 'Assessment',
+                      href: assessment(),
+                      icon: ClipboardList,
+                  },
+              ]
+            : []),
+        ...(canViewReports.value
+            ? [
+                  {
+                      title: 'Report cards',
+                      href: reports(),
+                      icon: FileText,
+                  },
+              ]
+            : []),
+        ...(canViewAnnouncements.value
+            ? [
+                  {
+                      title: 'Announcements',
+                      href: announcements(),
+                      icon: Megaphone,
+                  },
+              ]
+            : []),
+        ...(canViewMessages.value ? [messageNavItem.value] : []),
+        ...(canViewStudents.value
+            ? [
+                  {
+                      title: 'Students',
+                      href: students(),
+                      icon: GraduationCap,
+                  },
+              ]
+            : []),
+        ...(canViewStaff.value
+            ? [
+                  {
+                      title: 'Staff',
+                      href: staff(),
+                      icon: Briefcase,
+                  },
+              ]
+            : []),
+        ...(canViewFamilies.value
+            ? [
+                  {
+                      title: 'Families',
+                      href: families(),
+                      icon: House,
+                  },
+              ]
+            : []),
+        ...(canViewUsers.value
+            ? [
+                  {
+                      title: 'Users',
+                      href: users(),
+                      icon: Users,
+                  },
+              ]
+            : []),
+        ...(canManageSettings.value
+            ? [
+                  {
+                      title: 'School settings',
+                      href: editSchoolSettings(),
+                      icon: Settings,
+                  },
+              ]
+            : []),
+        ...(canManagePermissions.value
+            ? [
+                  {
+                      title: 'Permissions',
+                      href: editSchoolPermissions(),
+                      icon: ShieldCheck,
+                  },
+              ]
+            : []),
+    ];
+});
 </script>
 
 <template>

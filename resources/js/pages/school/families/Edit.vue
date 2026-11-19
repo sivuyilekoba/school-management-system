@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
+import FamilyController from '@/actions/App/Http/Controllers/School/FamilyController';
 import Heading from '@/components/Heading.vue';
 import FamilyForm from '@/components/FamilyForm.vue';
 import type { FamilyRecord } from '@/components/FamilyForm.vue';
+import LoginAccountPanel from '@/components/LoginAccountPanel.vue';
+import type { LoginAccount } from '@/components/LoginAccountPanel.vue';
 import { index } from '@/routes/school/families';
 
 type FamilyStudent = {
@@ -12,6 +15,7 @@ type FamilyStudent = {
 
 type FamilyWithStudents = FamilyRecord & {
     students: FamilyStudent[];
+    login: LoginAccount;
 };
 
 defineProps<{
@@ -49,6 +53,12 @@ defineOptions({
 
             <FamilyForm :family="family" />
         </div>
+
+        <LoginAccountPanel
+            :action="FamilyController.storeLogin.url(family.id)"
+            :account="family.login"
+            :default-email="family.contact_email"
+        />
 
         <section class="space-y-3">
             <Heading

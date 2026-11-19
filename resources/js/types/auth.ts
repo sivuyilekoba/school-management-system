@@ -13,6 +13,8 @@ export type User = {
 export type Auth = {
     user: User;
     permissions: string[];
+    roles: string[];
+    unreadMessages: number;
 };
 
 export type Passkey = {

@@ -2,11 +2,14 @@
 
 namespace App\Http\Controllers\School;
 
+use App\Enums\Role as RoleName;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\School\StoreFamilyLoginRequest;
 use App\Http\Requests\School\StoreFamilyRequest;
 use App\Http\Requests\School\UpdateFamilyRequest;
 use App\Models\Family;
 use App\Models\Student;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -88,7 +91,40 @@ class FamilyController extends Controller
                         'name' => $student->displayName(),
                     ])
                     ->all(),
+                'login' => [
+                    'exists' => $family->user_id !== null,
+                    'email' => $family->user?->email,
+                    'name' => $family->user?->name,
+                ],
             ],
+        ]);
+    }
+
+    /**
+     * Create a portal login for the given family.
+     */
+    public function storeLogin(StoreFamilyLoginRequest $request, Family $family): RedirectResponse
+    {
+        if ($family->user_id !== null) {
+            return back()->with('toast', [
+                'type' => 'error',
+                'message' => 'This family already has a login account.',
+            ]);
+        }
+
+        $user = User::query()->create([
+            'name' => $family->name,
+            'email' => $request->validated('email'),
+            'password' => $request->validated('password'),
+        ]);
+
+        $user->assignRole(RoleName::Parent->value);
+
+        $family->update(['user_id' => $user->id]);
+
+        return back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Family login created.',
         ]);
     }
 
