@@ -40,7 +40,7 @@ defineOptions({
 <template>
     <Head title="Messages" />
 
-    <div class="flex flex-col gap-6">
+    <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
         <PageHeader
             eyebrow="Inbox"
             title="Messages"

@@ -57,7 +57,7 @@ function submit(): void {
 <template>
     <Head :title="`Conversation with ${participant.name}`" />
 
-    <div class="flex max-w-3xl flex-col gap-6">
+    <div class="mx-auto flex max-w-3xl flex-col gap-6">
         <PageHeader
             eyebrow="Conversation"
             :title="participant.name"

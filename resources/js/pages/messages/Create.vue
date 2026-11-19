@@ -61,7 +61,7 @@ function submit(): void {
 <template>
     <Head title="New message" />
 
-    <div class="flex max-w-2xl flex-col gap-6">
+    <div class="mx-auto flex max-w-2xl flex-col gap-6">
         <PageHeader
             eyebrow="Messages"
             title="New message"
