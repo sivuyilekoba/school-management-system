@@ -11,6 +11,7 @@ import {
     GraduationCap,
     House,
     LayoutGrid,
+    Megaphone,
     Settings,
     ShieldCheck,
     Users,
@@ -29,6 +30,7 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
+import { index as announcements } from '@/routes/school/announcements';
 import { index as assessment } from '@/routes/school/assessment';
 import { index as attendance } from '@/routes/school/attendance';
 import { index as calendar } from '@/routes/school/calendar';
@@ -93,6 +95,10 @@ const canViewReports = computed(() =>
     page.props.auth.permissions.includes('reports.view'),
 );
 
+const canViewAnnouncements = computed(() =>
+    page.props.auth.permissions.includes('announcements.view'),
+);
+
 const mainNavItems = computed<NavItem[]>(() => [
     {
         title: 'Dashboard',
@@ -150,6 +156,15 @@ const mainNavItems = computed<NavItem[]>(() => [
                   title: 'Report cards',
                   href: reports(),
                   icon: FileText,
+              },
+          ]
+        : []),
+    ...(canViewAnnouncements.value
+        ? [
+              {
+                  title: 'Announcements',
+                  href: announcements(),
+                  icon: Megaphone,
               },
           ]
         : []),

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\School\AnnouncementController;
 use App\Http\Controllers\School\AssessmentController;
 use App\Http\Controllers\School\AttendanceController;
 use App\Http\Controllers\School\ClassEnrolmentController;
@@ -323,6 +324,42 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('school/reports/students/{student}/terms/{term}/publish', [ReportCardController::class, 'unpublish'])
         ->middleware('can:reports.publish')
         ->name('school.reports.unpublish');
+
+    Route::get('school/announcements', [AnnouncementController::class, 'index'])
+        ->middleware('can:announcements.view')
+        ->name('school.announcements.index');
+
+    Route::get('school/announcements/create', [AnnouncementController::class, 'create'])
+        ->middleware('can:announcements.manage')
+        ->name('school.announcements.create');
+
+    Route::post('school/announcements', [AnnouncementController::class, 'store'])
+        ->middleware('can:announcements.manage')
+        ->name('school.announcements.store');
+
+    Route::get('school/announcements/{announcement}', [AnnouncementController::class, 'show'])
+        ->middleware('can:announcements.view')
+        ->name('school.announcements.show');
+
+    Route::get('school/announcements/{announcement}/edit', [AnnouncementController::class, 'edit'])
+        ->middleware('can:announcements.manage')
+        ->name('school.announcements.edit');
+
+    Route::put('school/announcements/{announcement}', [AnnouncementController::class, 'update'])
+        ->middleware('can:announcements.manage')
+        ->name('school.announcements.update');
+
+    Route::delete('school/announcements/{announcement}', [AnnouncementController::class, 'destroy'])
+        ->middleware('can:announcements.manage')
+        ->name('school.announcements.destroy');
+
+    Route::put('school/announcements/{announcement}/publish', [AnnouncementController::class, 'publish'])
+        ->middleware('can:announcements.manage')
+        ->name('school.announcements.publish');
+
+    Route::delete('school/announcements/{announcement}/publish', [AnnouncementController::class, 'unpublish'])
+        ->middleware('can:announcements.manage')
+        ->name('school.announcements.unpublish');
 });
 
 require __DIR__.'/settings.php';

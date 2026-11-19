@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
                 DemoAttendanceSeeder::class,
                 DemoAssessmentSeeder::class,
                 DemoReportCardSeeder::class,
+                DemoAnnouncementSeeder::class,
             ]);
         }
     }
