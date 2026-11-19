@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import FamilyController from '@/actions/App/Http/Controllers/School/FamilyController';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import FamilyForm from '@/components/FamilyForm.vue';
 import type { FamilyRecord } from '@/components/FamilyForm.vue';
 import LoginAccountPanel from '@/components/LoginAccountPanel.vue';
@@ -41,12 +41,10 @@ defineOptions({
 <template>
     <Head :title="`Edit ${family.name}`" />
 
-    <h1 class="sr-only">Edit family</h1>
-
     <div class="flex max-w-2xl flex-col space-y-8">
         <div class="flex flex-col space-y-6">
-            <Heading
-                variant="small"
+            <PageHeader
+                eyebrow="Families"
                 :title="`Edit ${family.name}`"
                 description="Update the family details."
             />
@@ -61,11 +59,13 @@ defineOptions({
         />
 
         <section class="space-y-3">
-            <Heading
-                variant="small"
-                title="Students"
-                description="Students assigned to this family. Assign a family from a student record."
-            />
+            <div class="space-y-1">
+                <h2 class="text-lg font-semibold">Students</h2>
+                <p class="text-sm text-muted-foreground">
+                    Students assigned to this family. Assign a family from a
+                    student record.
+                </p>
+            </div>
 
             <ul
                 v-if="family.students.length"

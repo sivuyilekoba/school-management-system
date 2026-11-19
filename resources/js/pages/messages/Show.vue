@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, useForm } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import EmptyState from '@/components/EmptyState.vue';
 import InputError from '@/components/InputError.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import { create, index, store as storeMessage } from '@/routes/messages';
 
@@ -56,20 +57,18 @@ function submit(): void {
 <template>
     <Head :title="`Conversation with ${participant.name}`" />
 
-    <h1 class="sr-only">Conversation</h1>
-
-    <div class="flex max-w-3xl flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                :title="participant.name"
-                :description="participant.email"
-            />
-
-            <Button variant="outline" as-child>
-                <Link :href="index()">Back to messages</Link>
-            </Button>
-        </div>
+    <div class="flex max-w-3xl flex-col gap-6">
+        <PageHeader
+            eyebrow="Conversation"
+            :title="participant.name"
+            :description="participant.email"
+        >
+            <template #actions>
+                <Button variant="outline" as-child>
+                    <Link :href="index()">Back to messages</Link>
+                </Button>
+            </template>
+        </PageHeader>
 
         <div class="space-y-3">
             <div
@@ -79,11 +78,11 @@ function submit(): void {
                 :class="message.outgoing ? 'justify-end' : 'justify-start'"
             >
                 <div
-                    class="max-w-[85%] rounded-lg px-4 py-3 text-sm whitespace-pre-line"
+                    class="max-w-[85%] rounded-xl px-4 py-3 text-sm whitespace-pre-line shadow-card"
                     :class="
                         message.outgoing
                             ? 'bg-primary text-primary-foreground'
-                            : 'border bg-muted/40'
+                            : 'border bg-card'
                     "
                 >
                     <p>{{ message.body }}</p>
@@ -103,17 +102,16 @@ function submit(): void {
                 </div>
             </div>
 
-            <p
+            <EmptyState
                 v-if="!messages.length"
-                class="rounded-lg border px-4 py-8 text-center text-sm text-muted-foreground"
-            >
-                No messages in this conversation yet.
-            </p>
+                title="No messages in this conversation yet."
+                description="Send the first reply to get started."
+            />
         </div>
 
         <form
             v-if="canReply"
-            class="space-y-3 rounded-lg border p-4"
+            class="space-y-3 rounded-xl border bg-card p-4 shadow-card"
             @submit.prevent="submit"
         >
             <div class="grid gap-2">
@@ -137,7 +135,7 @@ function submit(): void {
 
         <p
             v-else
-            class="rounded-lg border px-4 py-4 text-sm text-muted-foreground"
+            class="rounded-xl border bg-muted/40 px-4 py-4 text-sm text-muted-foreground"
         >
             You can no longer reply to this conversation. Start a new message
             with someone you are allowed to contact.

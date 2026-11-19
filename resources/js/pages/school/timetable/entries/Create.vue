@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import TimetableEntryForm from '@/components/TimetableEntryForm.vue';
 import type {
     DayOption,
@@ -40,11 +40,9 @@ defineOptions({
 <template>
     <Head :title="`Add lesson for ${courseClass.name}`" />
 
-    <h1 class="sr-only">Add lesson</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Timetable lesson"
             :title="`Add lesson for ${courseClass.name}`"
             description="Schedule a lesson in the weekly timetable."
         />

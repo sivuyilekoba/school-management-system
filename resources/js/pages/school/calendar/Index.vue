@@ -1,10 +1,13 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import Heading from '@/components/Heading.vue';
+import DataTable from '@/components/DataTable.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import { index } from '@/routes/school/calendar';
 import { create, edit } from '@/routes/school/calendar/years';
+import type { DataTableColumn } from '@/types';
 
 type SchoolYearRow = {
     id: number;
@@ -15,7 +18,7 @@ type SchoolYearRow = {
     terms_count: number;
 };
 
-defineProps<{
+const props = defineProps<{
     years: SchoolYearRow[];
 }>();
 
@@ -35,98 +38,77 @@ const page = usePage();
 const canManage = computed(() =>
     page.props.auth.permissions.includes('calendar.manage'),
 );
+
+const columns = computed<DataTableColumn[]>(() => [
+    { key: 'name', label: 'School year' },
+    { key: 'start_date', label: 'Starts' },
+    { key: 'end_date', label: 'Ends' },
+    { key: 'terms_count', label: 'Terms' },
+    { key: 'is_current', label: 'Status' },
+    ...(canManage.value
+        ? [
+              {
+                  key: 'actions',
+                  label: '',
+                  srLabel: 'Actions',
+                  align: 'right' as const,
+              },
+          ]
+        : []),
+]);
 </script>
 
 <template>
     <Head title="Calendar" />
 
-    <h1 class="sr-only">Calendar</h1>
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Teaching"
+            title="Calendar"
+            description="School years and the terms that make them up."
+        >
+            <template #actions>
+                <Button v-if="canManage" as-child>
+                    <Link :href="create()">New school year</Link>
+                </Button>
+            </template>
+        </PageHeader>
 
-    <div class="flex flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                title="Calendar"
-                description="School years and the terms that make them up."
-            />
+        <DataTable
+            :columns="columns"
+            :rows="props.years"
+            row-key="id"
+            caption="School years"
+            empty-title="No school years yet."
+            empty-description="Add a school year before creating terms and classes."
+        >
+            <template #row="{ row }">
+                <td class="px-4 py-3 font-medium">{{ row.name }}</td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.start_date }}
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.end_date }}
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.terms_count }}
+                </td>
 
-            <Button v-if="canManage" as-child>
-                <Link :href="create()">New school year</Link>
-            </Button>
-        </div>
+                <td class="px-4 py-3">
+                    <StatusBadge
+                        v-if="row.is_current"
+                        label="Current"
+                        tone="success"
+                    />
+                    <span v-else class="text-muted-foreground">—</span>
+                </td>
 
-        <div class="overflow-x-auto rounded-lg border">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b bg-muted/50">
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            School year
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Starts
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Ends
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Terms
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Status
-                        </th>
-                        <th
-                            v-if="canManage"
-                            scope="col"
-                            class="px-4 py-3 text-right font-medium"
-                        >
-                            <span class="sr-only">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="year in years"
-                        :key="year.id"
-                        class="border-b last:border-b-0"
-                    >
-                        <td class="px-4 py-3 font-medium">{{ year.name }}</td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ year.start_date }}
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ year.end_date }}
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ year.terms_count }}
-                        </td>
-                        <td class="px-4 py-3">
-                            <span
-                                v-if="year.is_current"
-                                class="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
-                            >
-                                Current
-                            </span>
-                            <span v-else class="text-muted-foreground">—</span>
-                        </td>
-                        <td v-if="canManage" class="px-4 py-3 text-right">
-                            <Link
-                                :href="edit(year.id)"
-                                class="text-sm font-medium underline-offset-4 hover:underline"
-                            >
-                                Manage
-                            </Link>
-                        </td>
-                    </tr>
-                    <tr v-if="!years.length">
-                        <td
-                            :colspan="canManage ? 6 : 5"
-                            class="px-4 py-8 text-center text-muted-foreground"
-                        >
-                            No school years yet.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                <td v-if="canManage" class="px-4 py-3 text-right">
+                    <Button variant="ghost" size="sm" as-child>
+                        <Link :href="edit(row.id)">Manage</Link>
+                    </Button>
+                </td>
+            </template>
+        </DataTable>
     </div>
 </template>

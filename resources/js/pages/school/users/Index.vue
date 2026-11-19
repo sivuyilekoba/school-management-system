@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import Heading from '@/components/Heading.vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import DataPagination from '@/components/DataPagination.vue';
+import DataTable from '@/components/DataTable.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import SearchForm from '@/components/SearchForm.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { create, edit, index } from '@/routes/school/users';
+import type { DataTableColumn } from '@/types';
 
 type UserRow = {
     id: number;
@@ -45,147 +48,101 @@ const canManage = computed(() =>
     page.props.auth.permissions.includes('users.manage'),
 );
 
-const search = ref(props.search);
+const isSearching = computed(() => props.search.length > 0);
 
-function submitSearch(): void {
-    router.get(
-        index.url(),
-        { q: search.value || undefined },
-        { preserveState: true, preserveScroll: true, replace: true },
-    );
-}
+const columns = computed<DataTableColumn[]>(() => [
+    { key: 'name', label: 'Name' },
+    { key: 'email', label: 'Email' },
+    { key: 'roles', label: 'Roles' },
+    ...(canManage.value
+        ? [
+              {
+                  key: 'actions',
+                  label: '',
+                  srLabel: 'Actions',
+                  align: 'right' as const,
+              },
+          ]
+        : []),
+]);
 </script>
 
 <template>
     <Head title="Users" />
 
-    <h1 class="sr-only">Users</h1>
-
-    <div class="flex flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                title="Users"
-                description="Accounts that can sign in to the school system."
-            />
-
-            <Button v-if="canManage" as-child>
-                <Link :href="create()">New user</Link>
-            </Button>
-        </div>
-
-        <form class="max-w-md" @submit.prevent="submitSearch">
-            <div class="flex gap-2">
-                <Input
-                    v-model="search"
-                    type="search"
-                    placeholder="Search by name or email"
-                    aria-label="Search users"
-                />
-                <Button type="submit" variant="outline">Search</Button>
-            </div>
-        </form>
-
-        <div class="overflow-x-auto rounded-lg border">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b bg-muted/50">
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Name
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Email
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Roles
-                        </th>
-                        <th
-                            v-if="canManage"
-                            scope="col"
-                            class="px-4 py-3 text-right font-medium"
-                        >
-                            <span class="sr-only">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="user in users.data"
-                        :key="user.id"
-                        class="border-b last:border-b-0"
-                    >
-                        <td class="px-4 py-3 font-medium">{{ user.name }}</td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ user.email }}
-                        </td>
-                        <td class="px-4 py-3">
-                            <div class="flex flex-wrap gap-1">
-                                <Badge
-                                    v-for="role in user.roles"
-                                    :key="role"
-                                    variant="secondary"
-                                >
-                                    {{ role }}
-                                </Badge>
-                                <span
-                                    v-if="!user.roles.length"
-                                    class="text-muted-foreground"
-                                >
-                                    No role
-                                </span>
-                            </div>
-                        </td>
-                        <td v-if="canManage" class="px-4 py-3 text-right">
-                            <Link
-                                :href="edit(user.id)"
-                                class="text-sm font-medium underline-offset-4 hover:underline"
-                            >
-                                Edit
-                            </Link>
-                        </td>
-                    </tr>
-                    <tr v-if="!users.data.length">
-                        <td
-                            :colspan="canManage ? 4 : 3"
-                            class="px-4 py-8 text-center text-muted-foreground"
-                        >
-                            {{
-                                search
-                                    ? 'No users match your search.'
-                                    : 'No users yet.'
-                            }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div
-            v-if="users.last_page > 1"
-            class="flex flex-wrap items-center justify-between gap-3"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="School"
+            title="Users"
+            description="Accounts that can sign in to the school system."
         >
-            <p class="text-sm text-muted-foreground">
-                Page {{ users.current_page }} of {{ users.last_page }} ·
-                {{ users.total }} users
-            </p>
-            <div class="flex gap-2">
-                <Button
-                    v-if="users.prev_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="users.prev_page_url">Previous</Link>
+            <template #actions>
+                <Button v-if="canManage" as-child>
+                    <Link :href="create()">New user</Link>
                 </Button>
-                <Button
-                    v-if="users.next_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="users.next_page_url">Next</Link>
-                </Button>
-            </div>
-        </div>
+            </template>
+        </PageHeader>
+
+        <SearchForm
+            :url="index.url()"
+            :value="props.search"
+            placeholder="Search by name or email"
+            label="Search users"
+        />
+
+        <DataTable
+            :columns="columns"
+            :rows="props.users.data"
+            row-key="id"
+            caption="Users"
+            :empty-title="
+                isSearching ? 'No users match your search.' : 'No users yet.'
+            "
+            :empty-description="
+                isSearching
+                    ? 'Try a different name or email.'
+                    : 'Create the first user account to get started.'
+            "
+        >
+            <template #row="{ row }">
+                <td class="px-4 py-3 font-medium">{{ row.name }}</td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.email }}
+                </td>
+
+                <td class="px-4 py-3">
+                    <div class="flex flex-wrap gap-1">
+                        <Badge
+                            v-for="role in row.roles"
+                            :key="role"
+                            variant="secondary"
+                        >
+                            {{ role }}
+                        </Badge>
+                        <span
+                            v-if="!row.roles.length"
+                            class="text-muted-foreground"
+                        >
+                            No role
+                        </span>
+                    </div>
+                </td>
+
+                <td v-if="canManage" class="px-4 py-3 text-right">
+                    <Button variant="ghost" size="sm" as-child>
+                        <Link :href="edit(row.id)">Edit</Link>
+                    </Button>
+                </td>
+            </template>
+        </DataTable>
+
+        <DataPagination
+            :current-page="props.users.current_page"
+            :last-page="props.users.last_page"
+            :total="props.users.total"
+            :prev-url="props.users.prev_page_url"
+            :next-url="props.users.next_page_url"
+            item-label="users"
+        />
     </div>
 </template>

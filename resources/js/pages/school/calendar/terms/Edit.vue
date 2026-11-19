@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import TermForm from '@/components/TermForm.vue';
 import type { SchoolYearSummary, TermRecord } from '@/components/TermForm.vue';
 import { index } from '@/routes/school/calendar';
@@ -34,11 +34,9 @@ defineOptions({
 <template>
     <Head :title="`Edit ${term.name}`" />
 
-    <h1 class="sr-only">Edit term</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Term"
             :title="`Edit ${term.name}`"
             :description="`Update this term in ${schoolYear.name}.`"
         />

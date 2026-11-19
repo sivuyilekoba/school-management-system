@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
-import { Badge } from '@/components/ui/badge';
+import EmptyState from '@/components/EmptyState.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import { create, index, show } from '@/routes/messages';
 
@@ -39,30 +40,31 @@ defineOptions({
 <template>
     <Head title="Messages" />
 
-    <h1 class="sr-only">Messages</h1>
-
-    <div class="flex flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                title="Messages"
-                description="Direct conversations with staff, students, and families."
-            />
-
-            <Button as-child>
-                <Link :href="create()">New message</Link>
-            </Button>
-        </div>
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Inbox"
+            title="Messages"
+            description="Direct conversations with staff, students, and families."
+        >
+            <template #actions>
+                <Button as-child>
+                    <Link :href="create()">New message</Link>
+                </Button>
+            </template>
+        </PageHeader>
 
         <p
             v-if="unreadMessages"
-            class="rounded-lg border bg-muted/40 px-4 py-3 text-sm"
+            class="rounded-xl border bg-muted/40 px-4 py-3 text-sm"
         >
             You have {{ unreadMessages }} unread
             {{ unreadMessages === 1 ? 'message' : 'messages' }}.
         </p>
 
-        <div v-if="conversations.length" class="divide-y rounded-lg border">
+        <div
+            v-if="conversations.length"
+            class="divide-y overflow-hidden rounded-xl border bg-card shadow-card"
+        >
             <Link
                 v-for="conversation in conversations"
                 :key="conversation.participant.id"
@@ -74,9 +76,11 @@ defineOptions({
                         <span class="font-medium">
                             {{ conversation.participant.name }}
                         </span>
-                        <Badge v-if="conversation.unread" variant="default">
-                            {{ conversation.unread }} new
-                        </Badge>
+                        <StatusBadge
+                            v-if="conversation.unread"
+                            :label="`${conversation.unread} new`"
+                            tone="info"
+                        />
                     </div>
                     <p class="truncate text-sm text-muted-foreground">
                         <template v-if="conversation.latest.outgoing">
@@ -95,11 +99,10 @@ defineOptions({
             </Link>
         </div>
 
-        <p
+        <EmptyState
             v-else
-            class="rounded-lg border px-4 py-8 text-center text-sm text-muted-foreground"
-        >
-            No messages yet. Start a conversation with the New message button.
-        </p>
+            title="No messages yet."
+            description="Start a conversation with the New message button."
+        />
     </div>
 </template>

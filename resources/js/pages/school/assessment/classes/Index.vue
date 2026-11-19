@@ -2,9 +2,11 @@
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import AssessmentController from '@/actions/App/Http/Controllers/School/AssessmentController';
-import Heading from '@/components/Heading.vue';
+import DataTable from '@/components/DataTable.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import { index } from '@/routes/school/assessment';
+import type { DataTableColumn } from '@/types';
 
 type AssessmentRow = {
     id: number;
@@ -44,6 +46,19 @@ const canManage = computed(() =>
     page.props.auth.permissions.includes('assessment.manage'),
 );
 
+const columns = computed<DataTableColumn[]>(() => [
+    { key: 'name', label: 'Assessment' },
+    { key: 'assessed_on', label: 'Date' },
+    { key: 'max_score', label: 'Maximum score' },
+    { key: 'marks_count', label: 'Marks' },
+    {
+        key: 'actions',
+        label: '',
+        srLabel: 'Actions',
+        align: 'right' as const,
+    },
+]);
+
 function remove(assessment: AssessmentRow): void {
     if (!confirm(`Remove "${assessment.name}" and all of its marks?`)) {
         return;
@@ -58,17 +73,13 @@ function remove(assessment: AssessmentRow): void {
 <template>
     <Head :title="`Assessments for ${courseClass.name}`" />
 
-    <h1 class="sr-only">Class assessments</h1>
-
-    <div class="flex flex-col space-y-8">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                :title="`Assessments for ${courseClass.name}`"
-                description="Assessments and the marks recorded for this class."
-            />
-
-            <div class="flex flex-wrap gap-2">
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Class assessments"
+            :title="`Assessments for ${courseClass.name}`"
+            description="Assessments and the marks recorded for this class."
+        >
+            <template #actions>
                 <Button variant="outline" as-child>
                     <Link :href="index()">Back to assessment</Link>
                 </Button>
@@ -80,99 +91,58 @@ function remove(assessment: AssessmentRow): void {
                         Add assessment
                     </Link>
                 </Button>
-            </div>
-        </div>
+            </template>
+        </PageHeader>
 
-        <div class="overflow-x-auto rounded-lg border">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b bg-muted/50">
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Assessment
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Date
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Maximum score
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Marks
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-4 py-3 text-right font-medium"
+        <DataTable
+            :columns="columns"
+            :rows="assessments"
+            row-key="id"
+            caption="Assessments for this class"
+            empty-title="No assessments yet."
+            empty-description="Add an assessment to start recording marks."
+        >
+            <template #row="{ row }">
+                <td class="px-4 py-3 font-medium">{{ row.name }}</td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.assessed_on }}
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.max_score }}
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.marks_count }} / {{ students_count }}
+                </td>
+                <td class="px-4 py-3 text-right">
+                    <div class="flex justify-end gap-3">
+                        <Link
+                            :href="AssessmentController.marks.url(row.id)"
+                            class="text-sm font-medium underline-offset-4 hover:underline"
                         >
-                            <span class="sr-only">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="assessment in assessments"
-                        :key="assessment.id"
-                        class="border-b last:border-b-0"
-                    >
-                        <td class="px-4 py-3 font-medium">
-                            {{ assessment.name }}
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ assessment.assessed_on }}
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ assessment.max_score }}
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ assessment.marks_count }} / {{ students_count }}
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                            <div class="flex justify-end gap-3">
-                                <Link
-                                    :href="
-                                        AssessmentController.marks.url(
-                                            assessment.id,
-                                        )
-                                    "
-                                    class="text-sm font-medium underline-offset-4 hover:underline"
-                                >
-                                    {{
-                                        canManage && !assessment.marks_count
-                                            ? 'Enter marks'
-                                            : 'Marks'
-                                    }}
-                                </Link>
-                                <template v-if="canManage">
-                                    <Link
-                                        :href="
-                                            AssessmentController.edit.url(
-                                                assessment.id,
-                                            )
-                                        "
-                                        class="text-sm font-medium underline-offset-4 hover:underline"
-                                    >
-                                        Edit
-                                    </Link>
-                                    <button
-                                        type="button"
-                                        class="text-sm font-medium text-destructive underline-offset-4 hover:underline"
-                                        @click="remove(assessment)"
-                                    >
-                                        Remove
-                                    </button>
-                                </template>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr v-if="!assessments.length">
-                        <td
-                            colspan="5"
-                            class="px-4 py-8 text-center text-muted-foreground"
-                        >
-                            No assessments yet.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                            {{
+                                canManage && !row.marks_count
+                                    ? 'Enter marks'
+                                    : 'Marks'
+                            }}
+                        </Link>
+                        <template v-if="canManage">
+                            <Link
+                                :href="AssessmentController.edit.url(row.id)"
+                                class="text-sm font-medium underline-offset-4 hover:underline"
+                            >
+                                Edit
+                            </Link>
+                            <button
+                                type="button"
+                                class="text-sm font-medium text-destructive underline-offset-4 hover:underline"
+                                @click="remove(row)"
+                            >
+                                Remove
+                            </button>
+                        </template>
+                    </div>
+                </td>
+            </template>
+        </DataTable>
     </div>
 </template>

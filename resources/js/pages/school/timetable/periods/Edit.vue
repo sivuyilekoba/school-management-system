@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import TimetablePeriodForm from '@/components/TimetablePeriodForm.vue';
 import type { TimetablePeriodRecord } from '@/components/TimetablePeriodForm.vue';
 import { index } from '@/routes/school/timetable';
@@ -33,11 +33,9 @@ defineOptions({
 <template>
     <Head :title="`Edit ${period.name}`" />
 
-    <h1 class="sr-only">Edit timetable period</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Timetable periods"
             :title="`Edit ${period.name}`"
             description="Update the period name and times."
         />

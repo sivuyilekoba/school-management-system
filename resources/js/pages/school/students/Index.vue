@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import Heading from '@/components/Heading.vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import DataPagination from '@/components/DataPagination.vue';
+import DataTable from '@/components/DataTable.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import SearchForm from '@/components/SearchForm.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { create, edit, index } from '@/routes/school/students';
+import type { DataTableColumn } from '@/types';
 
 type StudentRow = {
     id: number;
@@ -47,157 +50,106 @@ const canManage = computed(() =>
     page.props.auth.permissions.includes('people.students.manage'),
 );
 
-const search = ref(props.search);
+const isSearching = computed(() => props.search.length > 0);
 
-function submitSearch(): void {
-    router.get(
-        index.url(),
-        { q: search.value || undefined },
-        { preserveState: true, preserveScroll: true, replace: true },
-    );
-}
+const columns = computed<DataTableColumn[]>(() => [
+    { key: 'name', label: 'Student' },
+    { key: 'family', label: 'Family' },
+    { key: 'date_of_birth', label: 'Date of birth' },
+    { key: 'account', label: 'Account' },
+    ...(canManage.value
+        ? [
+              {
+                  key: 'actions',
+                  label: '',
+                  srLabel: 'Actions',
+                  align: 'right' as const,
+              },
+          ]
+        : []),
+]);
 </script>
 
 <template>
     <Head title="Students" />
 
-    <h1 class="sr-only">Students</h1>
-
-    <div class="flex flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                title="Students"
-                description="Student records for the school."
-            />
-
-            <Button v-if="canManage" as-child>
-                <Link :href="create()">New student</Link>
-            </Button>
-        </div>
-
-        <form class="max-w-md" @submit.prevent="submitSearch">
-            <div class="flex gap-2">
-                <Input
-                    v-model="search"
-                    type="search"
-                    placeholder="Search by name or email"
-                    aria-label="Search students"
-                />
-                <Button type="submit" variant="outline">Search</Button>
-            </div>
-        </form>
-
-        <div class="overflow-x-auto rounded-lg border">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b bg-muted/50">
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Student
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Family
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Date of birth
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Account
-                        </th>
-                        <th
-                            v-if="canManage"
-                            scope="col"
-                            class="px-4 py-3 text-right font-medium"
-                        >
-                            <span class="sr-only">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="student in students.data"
-                        :key="student.id"
-                        class="border-b last:border-b-0"
-                    >
-                        <td class="px-4 py-3">
-                            <p class="font-medium">{{ student.name }}</p>
-                            <p
-                                v-if="student.email"
-                                class="text-muted-foreground"
-                            >
-                                {{ student.email }}
-                            </p>
-                        </td>
-                        <td class="px-4 py-3">
-                            <span v-if="student.family">{{
-                                student.family
-                            }}</span>
-                            <span v-else class="text-muted-foreground">
-                                No family
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ student.date_of_birth ?? '—' }}
-                        </td>
-                        <td class="px-4 py-3">
-                            <span v-if="student.account">
-                                {{ student.account }}
-                            </span>
-                            <span v-else class="text-muted-foreground">
-                                Not linked
-                            </span>
-                        </td>
-                        <td v-if="canManage" class="px-4 py-3 text-right">
-                            <Link
-                                :href="edit(student.id)"
-                                class="text-sm font-medium underline-offset-4 hover:underline"
-                            >
-                                Edit
-                            </Link>
-                        </td>
-                    </tr>
-                    <tr v-if="!students.data.length">
-                        <td
-                            :colspan="canManage ? 5 : 4"
-                            class="px-4 py-8 text-center text-muted-foreground"
-                        >
-                            {{
-                                search
-                                    ? 'No students match your search.'
-                                    : 'No students yet.'
-                            }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div
-            v-if="students.last_page > 1"
-            class="flex flex-wrap items-center justify-between gap-3"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="People"
+            title="Students"
+            description="Student records for the school."
         >
-            <p class="text-sm text-muted-foreground">
-                Page {{ students.current_page }} of {{ students.last_page }} ·
-                {{ students.total }} students
-            </p>
-            <div class="flex gap-2">
-                <Button
-                    v-if="students.prev_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="students.prev_page_url">Previous</Link>
+            <template #actions>
+                <Button v-if="canManage" as-child>
+                    <Link :href="create()">New student</Link>
                 </Button>
-                <Button
-                    v-if="students.next_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="students.next_page_url">Next</Link>
-                </Button>
-            </div>
-        </div>
+            </template>
+        </PageHeader>
+
+        <SearchForm
+            :url="index.url()"
+            :value="props.search"
+            placeholder="Search by name or email"
+            label="Search students"
+        />
+
+        <DataTable
+            :columns="columns"
+            :rows="props.students.data"
+            row-key="id"
+            caption="Students"
+            :empty-title="
+                isSearching
+                    ? 'No students match your search.'
+                    : 'No students yet.'
+            "
+            :empty-description="
+                isSearching
+                    ? 'Try a different name or email.'
+                    : 'Add the first student record to get started.'
+            "
+        >
+            <template #row="{ row }">
+                <td class="px-4 py-3">
+                    <p class="font-medium">{{ row.name }}</p>
+                    <p v-if="row.email" class="text-muted-foreground">
+                        {{ row.email }}
+                    </p>
+                </td>
+
+                <td class="px-4 py-3">
+                    <span v-if="row.family">{{ row.family }}</span>
+                    <span v-else class="text-muted-foreground">
+                        No family
+                    </span>
+                </td>
+
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.date_of_birth ?? '—' }}
+                </td>
+
+                <td class="px-4 py-3">
+                    <span v-if="row.account">{{ row.account }}</span>
+                    <span v-else class="text-muted-foreground">
+                        Not linked
+                    </span>
+                </td>
+
+                <td v-if="canManage" class="px-4 py-3 text-right">
+                    <Button variant="ghost" size="sm" as-child>
+                        <Link :href="edit(row.id)">Edit</Link>
+                    </Button>
+                </td>
+            </template>
+        </DataTable>
+
+        <DataPagination
+            :current-page="props.students.current_page"
+            :last-page="props.students.last_page"
+            :total="props.students.total"
+            :prev-url="props.students.prev_page_url"
+            :next-url="props.students.next_page_url"
+            item-label="students"
+        />
     </div>
 </template>

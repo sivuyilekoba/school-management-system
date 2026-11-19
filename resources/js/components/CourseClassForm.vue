@@ -2,10 +2,9 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import CourseClassController from '@/actions/App/Http/Controllers/School/CourseClassController';
-import InputError from '@/components/InputError.vue';
+import FormField from '@/components/FormField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -70,22 +69,26 @@ function submit(): void {
             >.
         </p>
 
-        <div class="grid gap-2">
-            <Label for="name">Class name</Label>
+        <FormField
+            label="Class name"
+            field-id="name"
+            :error="form.errors.name"
+            hint="Class names must be unique within this course."
+            required
+        >
             <Input
                 id="name"
                 v-model="form.name"
                 required
                 placeholder="e.g. 10A"
             />
-            <p class="text-sm text-muted-foreground">
-                Class names must be unique within this course.
-            </p>
-            <InputError :message="form.errors.name" />
-        </div>
+        </FormField>
 
-        <div class="grid gap-2">
-            <Label for="staff_id">Teacher</Label>
+        <FormField
+            label="Teacher"
+            field-id="staff_id"
+            :error="form.errors.staff_id"
+        >
             <Select v-model="teacherId">
                 <SelectTrigger id="staff_id" class="w-full">
                     <SelectValue placeholder="No teacher assigned" />
@@ -101,8 +104,7 @@ function submit(): void {
                     </SelectItem>
                 </SelectContent>
             </Select>
-            <InputError :message="form.errors.staff_id" />
-        </div>
+        </FormField>
 
         <div class="flex items-center gap-4">
             <Button :disabled="form.processing" data-test="save-class">

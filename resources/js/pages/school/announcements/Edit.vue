@@ -5,7 +5,7 @@ import type {
     AnnouncementRecord,
     AudienceOption,
 } from '@/components/AnnouncementForm.vue';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { index, show } from '@/routes/school/announcements';
 
 defineProps<{
@@ -32,11 +32,9 @@ defineOptions({
 <template>
     <Head :title="`Edit ${announcement.title}`" />
 
-    <h1 class="sr-only">Edit announcement</h1>
-
     <div class="flex max-w-3xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Announcements"
             title="Edit announcement"
             description="Update the notice, its audience, or when it is published."
         />

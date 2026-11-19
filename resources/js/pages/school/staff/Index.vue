@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import Heading from '@/components/Heading.vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import DataPagination from '@/components/DataPagination.vue';
+import DataTable from '@/components/DataTable.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import SearchForm from '@/components/SearchForm.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { create, edit, index } from '@/routes/school/staff';
+import type { DataTableColumn } from '@/types';
 
 type StaffRow = {
     id: number;
@@ -46,157 +49,104 @@ const canManage = computed(() =>
     page.props.auth.permissions.includes('people.staff.manage'),
 );
 
-const search = ref(props.search);
+const isSearching = computed(() => props.search.length > 0);
 
-function submitSearch(): void {
-    router.get(
-        index.url(),
-        { q: search.value || undefined },
-        { preserveState: true, preserveScroll: true, replace: true },
-    );
-}
+const columns = computed<DataTableColumn[]>(() => [
+    { key: 'name', label: 'Staff member' },
+    { key: 'job_title', label: 'Job title' },
+    { key: 'phone', label: 'Phone' },
+    { key: 'account', label: 'Account' },
+    ...(canManage.value
+        ? [
+              {
+                  key: 'actions',
+                  label: '',
+                  srLabel: 'Actions',
+                  align: 'right' as const,
+              },
+          ]
+        : []),
+]);
 </script>
 
 <template>
     <Head title="Staff" />
 
-    <h1 class="sr-only">Staff</h1>
-
-    <div class="flex flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                title="Staff"
-                description="Staff records for the school."
-            />
-
-            <Button v-if="canManage" as-child>
-                <Link :href="create()">New staff member</Link>
-            </Button>
-        </div>
-
-        <form class="max-w-md" @submit.prevent="submitSearch">
-            <div class="flex gap-2">
-                <Input
-                    v-model="search"
-                    type="search"
-                    placeholder="Search by name, job title or email"
-                    aria-label="Search staff"
-                />
-                <Button type="submit" variant="outline">Search</Button>
-            </div>
-        </form>
-
-        <div class="overflow-x-auto rounded-lg border">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b bg-muted/50">
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Staff member
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Job title
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Phone
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Account
-                        </th>
-                        <th
-                            v-if="canManage"
-                            scope="col"
-                            class="px-4 py-3 text-right font-medium"
-                        >
-                            <span class="sr-only">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="member in staff.data"
-                        :key="member.id"
-                        class="border-b last:border-b-0"
-                    >
-                        <td class="px-4 py-3">
-                            <p class="font-medium">{{ member.name }}</p>
-                            <p
-                                v-if="member.email"
-                                class="text-muted-foreground"
-                            >
-                                {{ member.email }}
-                            </p>
-                        </td>
-                        <td class="px-4 py-3">
-                            <span v-if="member.job_title">
-                                {{ member.job_title }}
-                            </span>
-                            <span v-else class="text-muted-foreground">
-                                Not set
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ member.phone ?? '—' }}
-                        </td>
-                        <td class="px-4 py-3">
-                            <span v-if="member.account">
-                                {{ member.account }}
-                            </span>
-                            <span v-else class="text-muted-foreground">
-                                Not linked
-                            </span>
-                        </td>
-                        <td v-if="canManage" class="px-4 py-3 text-right">
-                            <Link
-                                :href="edit(member.id)"
-                                class="text-sm font-medium underline-offset-4 hover:underline"
-                            >
-                                Edit
-                            </Link>
-                        </td>
-                    </tr>
-                    <tr v-if="!staff.data.length">
-                        <td
-                            :colspan="canManage ? 5 : 4"
-                            class="px-4 py-8 text-center text-muted-foreground"
-                        >
-                            {{
-                                search
-                                    ? 'No staff members match your search.'
-                                    : 'No staff members yet.'
-                            }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div
-            v-if="staff.last_page > 1"
-            class="flex flex-wrap items-center justify-between gap-3"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="People"
+            title="Staff"
+            description="Staff records for the school."
         >
-            <p class="text-sm text-muted-foreground">
-                Page {{ staff.current_page }} of {{ staff.last_page }} ·
-                {{ staff.total }} staff members
-            </p>
-            <div class="flex gap-2">
-                <Button
-                    v-if="staff.prev_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="staff.prev_page_url">Previous</Link>
+            <template #actions>
+                <Button v-if="canManage" as-child>
+                    <Link :href="create()">New staff member</Link>
                 </Button>
-                <Button
-                    v-if="staff.next_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="staff.next_page_url">Next</Link>
-                </Button>
-            </div>
-        </div>
+            </template>
+        </PageHeader>
+
+        <SearchForm
+            :url="index.url()"
+            :value="props.search"
+            placeholder="Search by name, job title or email"
+            label="Search staff"
+        />
+
+        <DataTable
+            :columns="columns"
+            :rows="props.staff.data"
+            row-key="id"
+            caption="Staff"
+            :empty-title="
+                isSearching
+                    ? 'No staff members match your search.'
+                    : 'No staff members yet.'
+            "
+            :empty-description="
+                isSearching
+                    ? 'Try a different name, job title or email.'
+                    : 'Add the first staff record to get started.'
+            "
+        >
+            <template #row="{ row }">
+                <td class="px-4 py-3">
+                    <p class="font-medium">{{ row.name }}</p>
+                    <p v-if="row.email" class="text-muted-foreground">
+                        {{ row.email }}
+                    </p>
+                </td>
+
+                <td class="px-4 py-3">
+                    <span v-if="row.job_title">{{ row.job_title }}</span>
+                    <span v-else class="text-muted-foreground">Not set</span>
+                </td>
+
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.phone ?? '—' }}
+                </td>
+
+                <td class="px-4 py-3">
+                    <span v-if="row.account">{{ row.account }}</span>
+                    <span v-else class="text-muted-foreground">
+                        Not linked
+                    </span>
+                </td>
+
+                <td v-if="canManage" class="px-4 py-3 text-right">
+                    <Button variant="ghost" size="sm" as-child>
+                        <Link :href="edit(row.id)">Edit</Link>
+                    </Button>
+                </td>
+            </template>
+        </DataTable>
+
+        <DataPagination
+            :current-page="props.staff.current_page"
+            :last-page="props.staff.last_page"
+            :total="props.staff.total"
+            :prev-url="props.staff.prev_page_url"
+            :next-url="props.staff.next_page_url"
+            item-label="staff members"
+        />
     </div>
 </template>

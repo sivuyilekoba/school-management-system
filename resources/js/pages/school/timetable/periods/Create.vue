@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import TimetablePeriodForm from '@/components/TimetablePeriodForm.vue';
 import { index } from '@/routes/school/timetable';
 import { create, index as periods } from '@/routes/school/timetable/periods';
@@ -28,11 +28,9 @@ defineOptions({
 <template>
     <Head title="New timetable period" />
 
-    <h1 class="sr-only">New timetable period</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Timetable periods"
             title="New timetable period"
             description="Add a period to the teaching day."
         />

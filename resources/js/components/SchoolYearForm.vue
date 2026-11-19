@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import SchoolYearController from '@/actions/App/Http/Controllers/School/SchoolYearController';
+import FormField from '@/components/FormField.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -48,39 +49,48 @@ function submit(): void {
 
 <template>
     <form class="space-y-6" @submit.prevent="submit">
-        <div class="grid gap-2">
-            <Label for="name">School year name</Label>
+        <FormField
+            label="School year name"
+            field-id="name"
+            :error="form.errors.name"
+            required
+        >
             <Input
                 id="name"
                 v-model="form.name"
                 required
                 placeholder="e.g. 2026-2027"
             />
-            <InputError :message="form.errors.name" />
-        </div>
+        </FormField>
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <div class="grid gap-2">
-                <Label for="start_date">Start date</Label>
+            <FormField
+                label="Start date"
+                field-id="start_date"
+                :error="form.errors.start_date"
+                required
+            >
                 <Input
                     id="start_date"
                     v-model="form.start_date"
                     type="date"
                     required
                 />
-                <InputError :message="form.errors.start_date" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="end_date">End date</Label>
+            <FormField
+                label="End date"
+                field-id="end_date"
+                :error="form.errors.end_date"
+                required
+            >
                 <Input
                     id="end_date"
                     v-model="form.end_date"
                     type="date"
                     required
                 />
-                <InputError :message="form.errors.end_date" />
-            </div>
+            </FormField>
         </div>
 
         <div class="flex items-start gap-2">

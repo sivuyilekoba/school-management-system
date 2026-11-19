@@ -7,3 +7,11 @@ export type FlashToast = {
     type: 'success' | 'info' | 'warning' | 'error';
     message: string;
 };
+
+export type DataTableColumn = {
+    key: string;
+    label: string;
+    align?: 'left' | 'center' | 'right';
+    srLabel?: string;
+    class?: string;
+};

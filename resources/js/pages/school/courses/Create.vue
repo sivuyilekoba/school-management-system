@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import CourseForm from '@/components/CourseForm.vue';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { create, index } from '@/routes/school/courses';
 
 defineOptions({
@@ -23,11 +23,9 @@ defineOptions({
 <template>
     <Head title="New course" />
 
-    <h1 class="sr-only">New course</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Courses"
             title="New course"
             description="Create a subject-level course that classes can be offered under."
         />

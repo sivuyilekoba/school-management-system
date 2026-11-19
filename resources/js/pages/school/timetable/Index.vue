@@ -2,7 +2,8 @@
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import TimetableEntryController from '@/actions/App/Http/Controllers/School/TimetableEntryController';
-import Heading from '@/components/Heading.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import {
     Select,
@@ -110,17 +111,13 @@ function editLessonUrl(day: number, periodId: number): string {
 <template>
     <Head title="Timetable" />
 
-    <h1 class="sr-only">Timetable</h1>
-
-    <div class="flex flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                title="Timetable"
-                description="Weekly lessons for each class."
-            />
-
-            <div class="flex flex-wrap gap-2">
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Teaching"
+            title="Timetable"
+            description="Weekly lessons for each class."
+        >
+            <template #actions>
                 <Button v-if="canManage" variant="outline" as-child>
                     <Link :href="periodsIndex()">Manage periods</Link>
                 </Button>
@@ -140,16 +137,14 @@ function editLessonUrl(day: number, periodId: number): string {
                         Add lesson
                     </Link>
                 </Button>
-            </div>
-        </div>
+            </template>
+        </PageHeader>
 
-        <p
+        <EmptyState
             v-if="!classes.length"
-            class="rounded-lg border px-4 py-8 text-center text-sm text-muted-foreground"
-        >
-            No classes yet. Create a course and class before building a
-            timetable.
-        </p>
+            title="No classes yet."
+            description="Create a course and class before building a timetable."
+        />
 
         <template v-else-if="selectedClass">
             <div class="flex flex-wrap items-end gap-4">
@@ -179,98 +174,109 @@ function editLessonUrl(day: number, periodId: number): string {
                 </p>
             </div>
 
-            <p
+            <EmptyState
                 v-if="!periods.length"
-                class="rounded-lg border px-4 py-8 text-center text-sm text-muted-foreground"
+                title="No periods yet."
+                :description="
+                    canManage
+                        ? 'Add periods before building this timetable.'
+                        : 'The school has not defined timetable periods yet.'
+                "
             >
-                No periods yet.
-                <template v-if="canManage">
-                    <Link
-                        :href="periodsIndex()"
-                        class="font-medium underline-offset-4 hover:underline"
-                    >
-                        Add periods
-                    </Link>
-                    before building this timetable.
-                </template>
-            </p>
+                <Button v-if="canManage" variant="outline" as-child>
+                    <Link :href="periodsIndex()">Manage periods</Link>
+                </Button>
+            </EmptyState>
 
-            <div v-else class="overflow-x-auto rounded-lg border">
-                <table class="w-full min-w-[42rem] table-fixed text-sm">
-                    <thead>
-                        <tr class="border-b bg-muted/50">
-                            <th
-                                scope="col"
-                                class="w-32 px-4 py-3 text-left font-medium"
-                            >
-                                Period
-                            </th>
-                            <th
-                                v-for="day in days"
-                                :key="day.value"
-                                scope="col"
-                                class="px-4 py-3 text-left font-medium"
-                            >
-                                {{ day.label }}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr
-                            v-for="period in periods"
-                            :key="period.id"
-                            class="border-b last:border-b-0"
-                        >
-                            <th scope="row" class="px-4 py-3 text-left">
-                                <p class="font-medium">{{ period.name }}</p>
-                                <p class="text-xs text-muted-foreground">
-                                    {{ period.start_time }}–{{
-                                        period.end_time
-                                    }}
-                                </p>
-                            </th>
-                            <td
-                                v-for="day in days"
-                                :key="day.value"
-                                class="border-l px-3 py-2 align-top"
-                            >
-                                <div
-                                    v-if="entryFor(day.value, period.id)"
-                                    class="space-y-1"
+            <div
+                v-else
+                class="overflow-hidden rounded-xl border bg-card shadow-card"
+            >
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[42rem] table-fixed text-sm">
+                        <caption class="sr-only">
+                            Weekly timetable
+                        </caption>
+                        <thead>
+                            <tr class="border-b bg-muted/40">
+                                <th
+                                    scope="col"
+                                    class="w-32 px-4 py-3 text-left font-medium"
                                 >
-                                    <p class="font-medium">
-                                        {{
-                                            entryFor(day.value, period.id)
-                                                ?.room ?? 'No room'
+                                    Period
+                                </th>
+                                <th
+                                    v-for="day in days"
+                                    :key="day.value"
+                                    scope="col"
+                                    class="px-4 py-3 text-left font-medium"
+                                >
+                                    {{ day.label }}
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="period in periods"
+                                :key="period.id"
+                                class="border-b transition-colors last:border-b-0 hover:bg-muted/40"
+                            >
+                                <th scope="row" class="px-4 py-3 text-left">
+                                    <p class="font-medium">{{ period.name }}</p>
+                                    <p class="text-xs text-muted-foreground">
+                                        {{ period.start_time }}–{{
+                                            period.end_time
                                         }}
                                     </p>
-                                    <Link
-                                        v-if="canManage"
-                                        :href="
-                                            editLessonUrl(day.value, period.id)
-                                        "
-                                        class="text-xs font-medium underline-offset-4 hover:underline"
+                                </th>
+                                <td
+                                    v-for="day in days"
+                                    :key="day.value"
+                                    class="border-l px-3 py-2 align-top"
+                                >
+                                    <div
+                                        v-if="entryFor(day.value, period.id)"
+                                        class="space-y-1"
                                     >
-                                        Edit
+                                        <p class="font-medium">
+                                            {{
+                                                entryFor(day.value, period.id)
+                                                    ?.room ?? 'No room'
+                                            }}
+                                        </p>
+                                        <Link
+                                            v-if="canManage"
+                                            :href="
+                                                editLessonUrl(
+                                                    day.value,
+                                                    period.id,
+                                                )
+                                            "
+                                            class="text-xs font-medium underline-offset-4 hover:underline"
+                                        >
+                                            Edit
+                                        </Link>
+                                    </div>
+                                    <Link
+                                        v-else-if="canManage"
+                                        :href="
+                                            addLessonUrl(day.value, period.id)
+                                        "
+                                        class="text-xs font-medium text-muted-foreground underline-offset-4 hover:underline"
+                                    >
+                                        Add
                                     </Link>
-                                </div>
-                                <Link
-                                    v-else-if="canManage"
-                                    :href="addLessonUrl(day.value, period.id)"
-                                    class="text-xs font-medium text-muted-foreground underline-offset-4 hover:underline"
-                                >
-                                    Add
-                                </Link>
-                                <span
-                                    v-else
-                                    class="text-xs text-muted-foreground"
-                                >
-                                    —
-                                </span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+                                    <span
+                                        v-else
+                                        class="text-xs text-muted-foreground"
+                                    >
+                                        —
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </template>
     </div>

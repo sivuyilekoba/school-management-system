@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import AssessmentForm from '@/components/AssessmentForm.vue';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { index } from '@/routes/school/assessment';
 
 defineProps<{
@@ -33,11 +33,9 @@ defineOptions({
 <template>
     <Head :title="`New assessment for ${courseClass.name}`" />
 
-    <h1 class="sr-only">New assessment</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Assessment"
             :title="`New assessment for ${courseClass.name}`"
             description="Set a score out of a maximum so marks can be entered."
         />

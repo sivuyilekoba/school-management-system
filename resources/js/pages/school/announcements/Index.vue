@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import Heading from '@/components/Heading.vue';
-import { Badge } from '@/components/ui/badge';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import DataPagination from '@/components/DataPagination.vue';
+import DataTable from '@/components/DataTable.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import SearchForm from '@/components/SearchForm.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { create, edit, index, show } from '@/routes/school/announcements';
+import type { DataTableColumn } from '@/types';
 
 type AnnouncementRow = {
     id: number;
@@ -49,171 +52,125 @@ const canManage = computed(() =>
     page.props.auth.permissions.includes('announcements.manage'),
 );
 
-const search = ref(props.search);
+const isSearching = computed(() => props.search.length > 0);
 
-const statusVariants: Record<
-    string,
-    'default' | 'secondary' | 'destructive' | 'outline'
-> = {
-    draft: 'secondary',
-    scheduled: 'outline',
-    published: 'default',
-    expired: 'destructive',
-};
+const columns = computed<DataTableColumn[]>(() => [
+    { key: 'title', label: 'Announcement' },
+    { key: 'audience', label: 'Audience' },
+    { key: 'status', label: 'Status' },
+    { key: 'published_at', label: 'Published' },
+    ...(canManage.value
+        ? [
+              {
+                  key: 'actions',
+                  label: '',
+                  srLabel: 'Actions',
+                  align: 'right' as const,
+              },
+          ]
+        : []),
+]);
+
+const statusTones = {
+    draft: 'neutral',
+    scheduled: 'info',
+    published: 'success',
+    expired: 'danger',
+} as const;
+
+function statusTone(
+    status: string,
+): 'success' | 'warning' | 'info' | 'danger' | 'neutral' {
+    return statusTones[status as keyof typeof statusTones] ?? 'neutral';
+}
 
 function statusLabel(status: string): string {
     return status.charAt(0).toUpperCase() + status.slice(1);
-}
-
-function submitSearch(): void {
-    router.get(
-        index.url(),
-        { q: search.value || undefined },
-        { preserveState: true, preserveScroll: true, replace: true },
-    );
 }
 </script>
 
 <template>
     <Head title="Announcements" />
 
-    <h1 class="sr-only">Announcements</h1>
-
-    <div class="flex flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                title="Announcements"
-                description="Notices posted to staff, students, and families."
-            />
-
-            <Button v-if="canManage" as-child>
-                <Link :href="create()">New announcement</Link>
-            </Button>
-        </div>
-
-        <form class="max-w-md" @submit.prevent="submitSearch">
-            <div class="flex gap-2">
-                <Input
-                    v-model="search"
-                    type="search"
-                    placeholder="Search announcements"
-                    aria-label="Search announcements"
-                />
-                <Button type="submit" variant="outline">Search</Button>
-            </div>
-        </form>
-
-        <div class="overflow-x-auto rounded-lg border">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b bg-muted/50">
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Announcement
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Audience
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Status
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Published
-                        </th>
-                        <th
-                            v-if="canManage"
-                            scope="col"
-                            class="px-4 py-3 text-right font-medium"
-                        >
-                            <span class="sr-only">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="announcement in announcements.data"
-                        :key="announcement.id"
-                        class="border-b last:border-b-0"
-                    >
-                        <td class="px-4 py-3">
-                            <Link
-                                :href="show(announcement.id)"
-                                class="font-medium underline-offset-4 hover:underline"
-                            >
-                                {{ announcement.title }}
-                            </Link>
-                            <p class="mt-1 text-xs text-muted-foreground">
-                                {{ announcement.author ?? 'Unknown author' }}
-                            </p>
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ announcement.audience_label }}
-                        </td>
-                        <td class="px-4 py-3">
-                            <Badge
-                                :variant="
-                                    statusVariants[announcement.status] ??
-                                    'secondary'
-                                "
-                            >
-                                {{ statusLabel(announcement.status) }}
-                            </Badge>
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ announcement.published_at ?? '—' }}
-                        </td>
-                        <td v-if="canManage" class="px-4 py-3 text-right">
-                            <Link
-                                :href="edit(announcement.id)"
-                                class="text-sm font-medium underline-offset-4 hover:underline"
-                            >
-                                Edit
-                            </Link>
-                        </td>
-                    </tr>
-                    <tr v-if="!announcements.data.length">
-                        <td
-                            :colspan="canManage ? 5 : 4"
-                            class="px-4 py-8 text-center text-muted-foreground"
-                        >
-                            {{
-                                search
-                                    ? 'No announcements match your search.'
-                                    : 'No announcements yet.'
-                            }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div
-            v-if="announcements.last_page > 1"
-            class="flex flex-wrap items-center justify-between gap-3"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Communication"
+            title="Announcements"
+            description="Notices posted to staff, students, and families."
         >
-            <p class="text-sm text-muted-foreground">
-                Page {{ announcements.current_page }} of
-                {{ announcements.last_page }} · {{ announcements.total }}
-                announcements
-            </p>
-            <div class="flex gap-2">
-                <Button
-                    v-if="announcements.prev_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="announcements.prev_page_url">Previous</Link>
+            <template #actions>
+                <Button v-if="canManage" as-child>
+                    <Link :href="create()">New announcement</Link>
                 </Button>
-                <Button
-                    v-if="announcements.next_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="announcements.next_page_url">Next</Link>
-                </Button>
-            </div>
-        </div>
+            </template>
+        </PageHeader>
+
+        <SearchForm
+            :url="index.url()"
+            :value="props.search"
+            placeholder="Search announcements"
+            label="Search announcements"
+        />
+
+        <DataTable
+            :columns="columns"
+            :rows="props.announcements.data"
+            row-key="id"
+            caption="Announcements"
+            :empty-title="
+                isSearching
+                    ? 'No announcements match your search.'
+                    : 'No announcements yet.'
+            "
+            :empty-description="
+                isSearching
+                    ? 'Try a different title or message.'
+                    : 'Write the first announcement for your school.'
+            "
+        >
+            <template #row="{ row }">
+                <td class="px-4 py-3">
+                    <Link
+                        :href="show(row.id)"
+                        class="font-medium underline-offset-4 hover:underline"
+                    >
+                        {{ row.title }}
+                    </Link>
+                    <p class="mt-1 text-xs text-muted-foreground">
+                        {{ row.author ?? 'Unknown author' }}
+                    </p>
+                </td>
+
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.audience_label }}
+                </td>
+
+                <td class="px-4 py-3">
+                    <StatusBadge
+                        :label="statusLabel(row.status)"
+                        :tone="statusTone(row.status)"
+                    />
+                </td>
+
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.published_at ?? '—' }}
+                </td>
+
+                <td v-if="canManage" class="px-4 py-3 text-right">
+                    <Button variant="ghost" size="sm" as-child>
+                        <Link :href="edit(row.id)">Edit</Link>
+                    </Button>
+                </td>
+            </template>
+        </DataTable>
+
+        <DataPagination
+            :current-page="props.announcements.current_page"
+            :last-page="props.announcements.last_page"
+            :total="props.announcements.total"
+            :prev-url="props.announcements.prev_page_url"
+            :next-url="props.announcements.next_page_url"
+            item-label="announcements"
+        />
     </div>
 </template>

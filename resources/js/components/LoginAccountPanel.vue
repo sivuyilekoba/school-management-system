@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { useForm } from '@inertiajs/vue3';
-import InputError from '@/components/InputError.vue';
+import FormField from '@/components/FormField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 export type LoginAccount = {
     exists: boolean;
@@ -55,8 +54,12 @@ function submit(): void {
         </div>
 
         <form v-else class="max-w-md space-y-4" @submit.prevent="submit">
-            <div class="grid gap-2">
-                <Label for="login-email">Email address</Label>
+            <FormField
+                label="Email address"
+                field-id="login-email"
+                :error="form.errors.email"
+                required
+            >
                 <Input
                     id="login-email"
                     v-model="form.email"
@@ -64,11 +67,14 @@ function submit(): void {
                     required
                     autocomplete="email"
                 />
-                <InputError :message="form.errors.email" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="login-password">Password</Label>
+            <FormField
+                label="Password"
+                field-id="login-password"
+                :error="form.errors.password"
+                required
+            >
                 <Input
                     id="login-password"
                     v-model="form.password"
@@ -76,13 +82,13 @@ function submit(): void {
                     required
                     autocomplete="new-password"
                 />
-                <InputError :message="form.errors.password" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="login-password-confirmation">
-                    Confirm password
-                </Label>
+            <FormField
+                label="Confirm password"
+                field-id="login-password-confirmation"
+                required
+            >
                 <Input
                     id="login-password-confirmation"
                     v-model="form.password_confirmation"
@@ -90,7 +96,7 @@ function submit(): void {
                     required
                     autocomplete="new-password"
                 />
-            </div>
+            </FormField>
 
             <Button :disabled="form.processing" data-test="create-login">
                 Create login

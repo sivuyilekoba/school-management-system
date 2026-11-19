@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import StaffForm from '@/components/StaffForm.vue';
 import type { AccountOption } from '@/components/StaffForm.vue';
 import { create, index } from '@/routes/school/staff';
@@ -28,11 +28,9 @@ defineOptions({
 <template>
     <Head title="New staff member" />
 
-    <h1 class="sr-only">New staff member</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Staff"
             title="New staff member"
             description="Add a staff record to the school."
         />

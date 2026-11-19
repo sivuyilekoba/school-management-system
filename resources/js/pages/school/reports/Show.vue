@@ -2,11 +2,15 @@
 import { Head, Link, router, useForm, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import ReportCardController from '@/actions/App/Http/Controllers/School/ReportCardController';
-import Heading from '@/components/Heading.vue';
+import DataTable from '@/components/DataTable.vue';
+import EmptyState from '@/components/EmptyState.vue';
 import InputError from '@/components/InputError.vue';
-import { Badge } from '@/components/ui/badge';
+import PageHeader from '@/components/PageHeader.vue';
+import StatCard from '@/components/StatCard.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { Button } from '@/components/ui/button';
 import { index } from '@/routes/school/reports';
+import type { DataTableColumn } from '@/types';
 
 type AttendanceCounts = {
     present: number;
@@ -90,6 +94,13 @@ const form = useForm({
     comment: props.reportCard.comment ?? '',
 });
 
+const columns: DataTableColumn[] = [
+    { key: 'name', label: 'Assessment' },
+    { key: 'assessed_on', label: 'Date' },
+    { key: 'score', label: 'Score' },
+    { key: 'percentage', label: 'Percentage' },
+];
+
 function saveComment(): void {
     form.put(
         ReportCardController.saveComment.url({
@@ -139,22 +150,17 @@ function formatScore(assessment: AssessmentRow): string {
 <template>
     <Head :title="`Report card for ${student.name}`" />
 
-    <h1 class="sr-only">Report card</h1>
-
-    <div class="flex flex-col space-y-8">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                :title="`Report card for ${student.name}`"
-                :description="`${term.school_year.name} · ${term.name} · ${term.start_date} to ${term.end_date}`"
-            />
-
-            <div class="flex flex-wrap items-center gap-2">
-                <Badge
-                    :variant="reportCard.published ? 'default' : 'secondary'"
-                >
-                    {{ reportCard.published ? 'Published' : 'Draft' }}
-                </Badge>
+    <div class="flex flex-col gap-8">
+        <PageHeader
+            eyebrow="Report card"
+            :title="`Report card for ${student.name}`"
+            :description="`${term.school_year.name} · ${term.name} · ${term.start_date} to ${term.end_date}`"
+        >
+            <template #actions>
+                <StatusBadge
+                    :label="reportCard.published ? 'Published' : 'Draft'"
+                    :tone="reportCard.published ? 'success' : 'warning'"
+                />
 
                 <Button variant="outline" as-child>
                     <a
@@ -207,51 +213,38 @@ function formatScore(assessment: AssessmentRow): string {
                         Unpublish
                     </Button>
                 </template>
-            </div>
-        </div>
+            </template>
+        </PageHeader>
 
         <div class="grid gap-4 sm:grid-cols-3">
-            <div class="rounded-lg border p-4">
-                <p class="text-sm text-muted-foreground">Overall average</p>
-                <p class="mt-1 text-2xl font-semibold">
-                    {{ formatPercentage(overall.percentage) }}
-                </p>
-                <p class="mt-1 text-xs text-muted-foreground">
-                    {{ overall.marked_count }} of
-                    {{ overall.assessments_count }} assessments marked
-                </p>
-            </div>
+            <StatCard
+                label="Overall average"
+                :value="formatPercentage(overall.percentage)"
+                :hint="`${overall.marked_count} of ${overall.assessments_count} assessments marked`"
+            />
 
-            <div class="rounded-lg border p-4">
-                <p class="text-sm text-muted-foreground">Attendance</p>
-                <p class="mt-1 text-2xl font-semibold">
-                    {{ attendance.present }} / {{ attendance.total }}
-                </p>
-                <p class="mt-1 text-xs text-muted-foreground">
-                    Present · {{ attendance.late }} late ·
-                    {{ attendance.excused }} excused ·
-                    {{ attendance.absent }} absent
-                </p>
-            </div>
+            <StatCard
+                label="Attendance"
+                :value="`${attendance.present} / ${attendance.total}`"
+                :hint="`Present · ${attendance.late} late · ${attendance.excused} excused · ${attendance.absent} absent`"
+            />
 
-            <div class="rounded-lg border p-4">
-                <p class="text-sm text-muted-foreground">Student</p>
-                <p class="mt-1 text-lg font-semibold">{{ student.name }}</p>
-                <p class="mt-1 text-xs text-muted-foreground">
-                    {{ student.email ?? 'No email' }}
-                    <template v-if="student.family">
-                        · {{ student.family }}
-                    </template>
-                </p>
-            </div>
+            <StatCard
+                label="Student"
+                :value="student.name"
+                :hint="
+                    student.family
+                        ? `${student.email ?? 'No email'} · ${student.family}`
+                        : (student.email ?? 'No email')
+                "
+            />
         </div>
 
-        <p
+        <EmptyState
             v-if="!classes.length"
-            class="rounded-lg border px-4 py-8 text-center text-sm text-muted-foreground"
-        >
-            This student is not enrolled in any classes for this term.
-        </p>
+            title="This student is not enrolled in any classes for this term."
+            description="Report card results appear once marks and attendance are recorded."
+        />
 
         <div v-else class="space-y-8">
             <section
@@ -271,67 +264,26 @@ function formatScore(assessment: AssessmentRow): string {
                     </p>
                 </div>
 
-                <p
-                    v-if="!classRow.assessments.length"
-                    class="rounded-lg border px-4 py-6 text-center text-sm text-muted-foreground"
+                <DataTable
+                    :columns="columns"
+                    :rows="classRow.assessments"
+                    row-key="id"
+                    :caption="`Assessments for ${classRow.name}`"
+                    empty-title="No assessments were recorded for this class in this term."
                 >
-                    No assessments were recorded for this class in this term.
-                </p>
-
-                <div v-else class="overflow-x-auto rounded-lg border">
-                    <table class="w-full text-sm">
-                        <thead>
-                            <tr class="border-b bg-muted/50">
-                                <th
-                                    scope="col"
-                                    class="px-4 py-3 text-left font-medium"
-                                >
-                                    Assessment
-                                </th>
-                                <th
-                                    scope="col"
-                                    class="px-4 py-3 text-left font-medium"
-                                >
-                                    Date
-                                </th>
-                                <th
-                                    scope="col"
-                                    class="px-4 py-3 text-left font-medium"
-                                >
-                                    Score
-                                </th>
-                                <th
-                                    scope="col"
-                                    class="px-4 py-3 text-left font-medium"
-                                >
-                                    Percentage
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="assessment in classRow.assessments"
-                                :key="assessment.id"
-                                class="border-b last:border-b-0"
-                            >
-                                <td class="px-4 py-3 font-medium">
-                                    {{ assessment.name }}
-                                </td>
-                                <td class="px-4 py-3 text-muted-foreground">
-                                    {{ assessment.assessed_on }}
-                                </td>
-                                <td class="px-4 py-3 text-muted-foreground">
-                                    {{ formatScore(assessment) }}
-                                </td>
-                                <td class="px-4 py-3 text-muted-foreground">
-                                    {{
-                                        formatPercentage(assessment.percentage)
-                                    }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                    <template #row="{ row }">
+                        <td class="px-4 py-3 font-medium">{{ row.name }}</td>
+                        <td class="px-4 py-3 text-muted-foreground">
+                            {{ row.assessed_on }}
+                        </td>
+                        <td class="px-4 py-3 text-muted-foreground">
+                            {{ formatScore(row) }}
+                        </td>
+                        <td class="px-4 py-3 text-muted-foreground">
+                            {{ formatPercentage(row.percentage) }}
+                        </td>
+                    </template>
+                </DataTable>
             </section>
         </div>
 
@@ -363,7 +315,7 @@ function formatScore(assessment: AssessmentRow): string {
 
             <p
                 v-else-if="reportCard.comment"
-                class="rounded-lg border p-4 text-sm whitespace-pre-line"
+                class="rounded-xl border bg-card p-4 text-sm whitespace-pre-line shadow-card"
             >
                 {{ reportCard.comment }}
             </p>

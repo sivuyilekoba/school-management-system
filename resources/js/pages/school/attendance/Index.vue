@@ -2,10 +2,12 @@
 import { Head, Link, router, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 import AttendanceController from '@/actions/App/Http/Controllers/School/AttendanceController';
-import Heading from '@/components/Heading.vue';
-import { Badge } from '@/components/ui/badge';
+import DataTable from '@/components/DataTable.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { Input } from '@/components/ui/input';
 import { index } from '@/routes/school/attendance';
+import type { DataTableColumn } from '@/types';
 
 type AttendanceCounts = {
     present: number;
@@ -47,6 +49,19 @@ const canRecord = computed(() =>
 
 const selectedDate = ref(props.date);
 
+const columns = computed<DataTableColumn[]>(() => [
+    { key: 'name', label: 'Class' },
+    { key: 'teacher', label: 'Teacher' },
+    { key: 'students_count', label: 'Students' },
+    { key: 'attendance', label: 'Attendance' },
+    {
+        key: 'actions',
+        label: '',
+        srLabel: 'Actions',
+        align: 'right' as const,
+    },
+]);
+
 function changeDate(): void {
     if (!selectedDate.value) {
         return;
@@ -63,114 +78,79 @@ function changeDate(): void {
 <template>
     <Head title="Attendance" />
 
-    <h1 class="sr-only">Attendance</h1>
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Teaching"
+            title="Attendance"
+            description="Daily registers for every class."
+        >
+            <template #actions>
+                <div class="grid w-full max-w-xs gap-2">
+                    <label for="attendance-date" class="text-sm font-medium">
+                        Date
+                    </label>
+                    <Input
+                        id="attendance-date"
+                        v-model="selectedDate"
+                        type="date"
+                        @change="changeDate"
+                    />
+                </div>
+            </template>
+        </PageHeader>
 
-    <div class="flex flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                title="Attendance"
-                description="Daily registers for every class."
-            />
+        <DataTable
+            :columns="columns"
+            :rows="props.classes"
+            row-key="id"
+            caption="Class attendance"
+            empty-title="No classes yet."
+            empty-description="Create a course and class before taking attendance."
+        >
+            <template #row="{ row }">
+                <td class="px-4 py-3 font-medium">{{ row.name }}</td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.teacher ?? '—' }}
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.students_count }}
+                </td>
 
-            <div class="grid w-full max-w-xs gap-2">
-                <label for="attendance-date" class="text-sm font-medium">
-                    Date
-                </label>
-                <Input
-                    id="attendance-date"
-                    v-model="selectedDate"
-                    type="date"
-                    @change="changeDate"
-                />
-            </div>
-        </div>
+                <td class="px-4 py-3">
+                    <div v-if="row.recorded" class="flex flex-wrap gap-1.5">
+                        <StatusBadge
+                            :label="`Present ${row.counts.present}`"
+                            tone="success"
+                        />
+                        <StatusBadge
+                            :label="`Absent ${row.counts.absent}`"
+                            tone="danger"
+                        />
+                        <StatusBadge
+                            :label="`Late ${row.counts.late}`"
+                            tone="warning"
+                        />
+                        <StatusBadge
+                            :label="`Excused ${row.counts.excused}`"
+                            tone="info"
+                        />
+                    </div>
+                    <span v-else class="text-muted-foreground">Not taken</span>
+                </td>
 
-        <div class="overflow-x-auto rounded-lg border">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b bg-muted/50">
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Class
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Teacher
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Students
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Attendance
-                        </th>
-                        <th
-                            scope="col"
-                            class="px-4 py-3 text-right font-medium"
-                        >
-                            <span class="sr-only">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="classRow in classes"
-                        :key="classRow.id"
-                        class="border-b last:border-b-0"
+                <td class="px-4 py-3 text-right">
+                    <Link
+                        :href="
+                            AttendanceController.show.url(row.id, {
+                                query: { date },
+                            })
+                        "
+                        class="text-sm font-medium underline-offset-4 hover:underline"
                     >
-                        <td class="px-4 py-3 font-medium">
-                            {{ classRow.name }}
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ classRow.teacher ?? '—' }}
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ classRow.students_count }}
-                        </td>
-                        <td class="px-4 py-3">
-                            <div
-                                v-if="classRow.recorded"
-                                class="flex flex-wrap gap-2"
-                            >
-                                <Badge variant="secondary">
-                                    Present {{ classRow.counts.present }}
-                                </Badge>
-                                <Badge variant="destructive">
-                                    Absent {{ classRow.counts.absent }}
-                                </Badge>
-                                <Badge variant="outline">
-                                    Late {{ classRow.counts.late }}
-                                </Badge>
-                                <Badge variant="outline">
-                                    Excused {{ classRow.counts.excused }}
-                                </Badge>
-                            </div>
-                            <span v-else class="text-muted-foreground">
-                                Not taken
-                            </span>
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                            <Link
-                                :href="
-                                    AttendanceController.show.url(classRow.id, {
-                                        query: { date },
-                                    })
-                                "
-                                class="text-sm font-medium underline-offset-4 hover:underline"
-                            >
-                                {{ canRecord ? 'Take register' : 'View' }}
-                            </Link>
-                        </td>
-                    </tr>
-                    <tr v-if="!classes.length">
-                        <td
-                            colspan="5"
-                            class="px-4 py-8 text-center text-muted-foreground"
-                        >
-                            No classes yet. Create a course and class before
-                            taking attendance.
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+                        {{ canRecord ? 'Take register' : 'View' }}
+                    </Link>
+                </td>
+            </template>
+        </DataTable>
     </div>
 </template>

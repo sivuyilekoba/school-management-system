@@ -2,10 +2,9 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import TimetablePeriodController from '@/actions/App/Http/Controllers/School/TimetablePeriodController';
-import InputError from '@/components/InputError.vue';
+import FormField from '@/components/FormField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 export type TimetablePeriodRecord = {
     id: number;
@@ -41,39 +40,48 @@ function submit(): void {
 
 <template>
     <form class="space-y-6" @submit.prevent="submit">
-        <div class="grid gap-2">
-            <Label for="name">Period name</Label>
+        <FormField
+            label="Period name"
+            field-id="name"
+            :error="form.errors.name"
+            required
+        >
             <Input
                 id="name"
                 v-model="form.name"
                 required
                 placeholder="e.g. Period 1"
             />
-            <InputError :message="form.errors.name" />
-        </div>
+        </FormField>
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <div class="grid gap-2">
-                <Label for="start_time">Start time</Label>
+            <FormField
+                label="Start time"
+                field-id="start_time"
+                :error="form.errors.start_time"
+                required
+            >
                 <Input
                     id="start_time"
                     v-model="form.start_time"
                     type="time"
                     required
                 />
-                <InputError :message="form.errors.start_time" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="end_time">End time</Label>
+            <FormField
+                label="End time"
+                field-id="end_time"
+                :error="form.errors.end_time"
+                required
+            >
                 <Input
                     id="end_time"
                     v-model="form.end_time"
                     type="time"
                     required
                 />
-                <InputError :message="form.errors.end_time" />
-            </div>
+            </FormField>
         </div>
 
         <div class="flex items-center gap-4">

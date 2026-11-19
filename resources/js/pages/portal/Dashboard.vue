@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import Heading from '@/components/Heading.vue';
+import EmptyState from '@/components/EmptyState.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import { index as messages } from '@/routes/messages';
 import { dashboard } from '@/routes/portal';
@@ -49,11 +50,9 @@ const user = computed(() => page.props.auth.user);
 <template>
     <Head title="Portal" />
 
-    <h1 class="sr-only">Portal</h1>
-
-    <div class="flex flex-col space-y-8">
-        <Heading
-            variant="small"
+    <div class="flex flex-col gap-8">
+        <PageHeader
+            eyebrow="Portal"
             :title="`Welcome, ${user.name}`"
             :description="
                 isParent
@@ -63,7 +62,7 @@ const user = computed(() => page.props.auth.user);
         />
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <div class="rounded-lg border p-5">
+            <div class="rounded-xl border bg-card p-5 shadow-card">
                 <p class="text-sm text-muted-foreground">
                     {{ isParent ? 'Children' : 'Your student record' }}
                 </p>
@@ -88,9 +87,9 @@ const user = computed(() => page.props.auth.user);
                 </Button>
             </div>
 
-            <div class="rounded-lg border p-5">
+            <div class="rounded-xl border bg-card p-5 shadow-card">
                 <p class="text-sm text-muted-foreground">Messages</p>
-                <p class="mt-1 text-2xl font-semibold">
+                <p class="mt-1 text-3xl font-semibold tabular-nums">
                     {{ unreadMessages }}
                 </p>
                 <p class="mt-1 text-xs text-muted-foreground">
@@ -115,7 +114,10 @@ const user = computed(() => page.props.auth.user);
                 </Button>
             </div>
 
-            <div v-if="announcements.length" class="divide-y rounded-lg border">
+            <div
+                v-if="announcements.length"
+                class="divide-y overflow-hidden rounded-xl border bg-card shadow-card"
+            >
                 <Link
                     v-for="announcement in announcements"
                     :key="announcement.id"
@@ -132,12 +134,11 @@ const user = computed(() => page.props.auth.user);
                 </Link>
             </div>
 
-            <p
+            <EmptyState
                 v-else
-                class="rounded-lg border px-4 py-6 text-center text-sm text-muted-foreground"
-            >
-                No announcements have been posted for you yet.
-            </p>
+                title="No announcements have been posted for you yet."
+                description="New notices from the school will appear here."
+            />
         </section>
     </div>
 </template>

@@ -5,7 +5,7 @@ import type {
     CourseClassRecord,
     StaffOption,
 } from '@/components/CourseClassForm.vue';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { edit as editCourse, index } from '@/routes/school/courses';
 
 defineProps<{
@@ -40,11 +40,9 @@ defineOptions({
 <template>
     <Head :title="`Edit class ${courseClass.name}`" />
 
-    <h1 class="sr-only">Edit class</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Class"
             :title="`Edit class ${courseClass.name}`"
             :description="`Update this class in ${course.name}.`"
         />

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Form, Head } from '@inertiajs/vue3';
 import SecurityController from '@/actions/App/Http/Controllers/Settings/SecurityController';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
@@ -35,13 +35,11 @@ defineOptions({
 <template>
     <Head title="Security settings" />
 
-    <h1 class="sr-only">Security settings</h1>
-
-    <div class="space-y-6">
-        <Heading
-            variant="small"
-            title="Update password"
-            description="Ensure your account is using a long, random password to stay secure"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Settings"
+            title="Security settings"
+            description="Update your password and manage how you sign in."
         />
 
         <Form

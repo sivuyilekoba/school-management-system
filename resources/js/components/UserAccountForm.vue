@@ -2,6 +2,7 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import UserController from '@/actions/App/Http/Controllers/School/UserController';
+import FormField from '@/components/FormField.vue';
 import InputError from '@/components/InputError.vue';
 import PasswordInput from '@/components/PasswordInput.vue';
 import { Button } from '@/components/ui/button';
@@ -56,8 +57,12 @@ function submit(): void {
 
 <template>
     <form class="space-y-6" @submit.prevent="submit">
-        <div class="grid gap-2">
-            <Label for="name">Name</Label>
+        <FormField
+            label="Name"
+            field-id="name"
+            :error="form.errors.name"
+            required
+        >
             <Input
                 id="name"
                 v-model="form.name"
@@ -65,11 +70,14 @@ function submit(): void {
                 autocomplete="name"
                 placeholder="Full name"
             />
-            <InputError :message="form.errors.name" />
-        </div>
+        </FormField>
 
-        <div class="grid gap-2">
-            <Label for="email">Email address</Label>
+        <FormField
+            label="Email address"
+            field-id="email"
+            :error="form.errors.email"
+            required
+        >
             <Input
                 id="email"
                 v-model="form.email"
@@ -78,33 +86,36 @@ function submit(): void {
                 autocomplete="email"
                 placeholder="name@school.example"
             />
-            <InputError :message="form.errors.email" />
-        </div>
+        </FormField>
 
         <template v-if="!isEditing">
-            <div class="grid gap-2">
-                <Label for="password">Password</Label>
+            <FormField
+                label="Password"
+                field-id="password"
+                :error="form.errors.password"
+                hint="At least 8 characters. Share it with the user after saving."
+                required
+            >
                 <PasswordInput
                     id="password"
                     v-model="form.password"
                     required
                     autocomplete="new-password"
                 />
-                <p class="text-sm text-muted-foreground">
-                    At least 8 characters. Share it with the user after saving.
-                </p>
-                <InputError :message="form.errors.password" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="password_confirmation">Confirm password</Label>
+            <FormField
+                label="Confirm password"
+                field-id="password_confirmation"
+                required
+            >
                 <PasswordInput
                     id="password_confirmation"
                     v-model="form.password_confirmation"
                     required
                     autocomplete="new-password"
                 />
-            </div>
+            </FormField>
         </template>
 
         <fieldset class="grid gap-2">

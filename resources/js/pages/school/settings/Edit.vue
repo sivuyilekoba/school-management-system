@@ -2,7 +2,7 @@
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref } from 'vue';
 import SchoolSettingsController from '@/actions/App/Http/Controllers/School/SchoolSettingsController';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -76,11 +76,9 @@ function submit(): void {
 <template>
     <Head title="School settings" />
 
-    <h1 class="sr-only">School settings</h1>
-
-    <div class="flex flex-col space-y-6">
-        <Heading
-            variant="small"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Settings"
             title="School settings"
             description="Details used across the school, such as the name shown in the sidebar and on printed reports"
         />

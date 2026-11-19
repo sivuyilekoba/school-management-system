@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { Head, Link, router, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
-import Heading from '@/components/Heading.vue';
+import { Head, Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
+import DataPagination from '@/components/DataPagination.vue';
+import DataTable from '@/components/DataTable.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import SearchForm from '@/components/SearchForm.vue';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { create, edit, index } from '@/routes/school/courses';
+import type { DataTableColumn } from '@/types';
 
 type CourseRow = {
     id: number;
@@ -44,133 +47,88 @@ const canManage = computed(() =>
     page.props.auth.permissions.includes('curriculum.manage'),
 );
 
-const search = ref(props.search);
+const isSearching = computed(() => props.search.length > 0);
 
-function submitSearch(): void {
-    router.get(
-        index.url(),
-        { q: search.value || undefined },
-        { preserveState: true, preserveScroll: true, replace: true },
-    );
-}
+const columns = computed<DataTableColumn[]>(() => [
+    { key: 'name', label: 'Course' },
+    { key: 'short_name', label: 'Short name' },
+    { key: 'classes_count', label: 'Classes' },
+    ...(canManage.value
+        ? [
+              {
+                  key: 'actions',
+                  label: '',
+                  srLabel: 'Actions',
+                  align: 'right' as const,
+              },
+          ]
+        : []),
+]);
 </script>
 
 <template>
     <Head title="Courses" />
 
-    <h1 class="sr-only">Courses</h1>
-
-    <div class="flex flex-col space-y-6">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                title="Courses"
-                description="Subjects offered by the school and their classes."
-            />
-
-            <Button v-if="canManage" as-child>
-                <Link :href="create()">New course</Link>
-            </Button>
-        </div>
-
-        <form class="max-w-md" @submit.prevent="submitSearch">
-            <div class="flex gap-2">
-                <Input
-                    v-model="search"
-                    type="search"
-                    placeholder="Search by course name"
-                    aria-label="Search courses"
-                />
-                <Button type="submit" variant="outline">Search</Button>
-            </div>
-        </form>
-
-        <div class="overflow-x-auto rounded-lg border">
-            <table class="w-full text-sm">
-                <thead>
-                    <tr class="border-b bg-muted/50">
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Course
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Short name
-                        </th>
-                        <th scope="col" class="px-4 py-3 text-left font-medium">
-                            Classes
-                        </th>
-                        <th
-                            v-if="canManage"
-                            scope="col"
-                            class="px-4 py-3 text-right font-medium"
-                        >
-                            <span class="sr-only">Actions</span>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr
-                        v-for="course in courses.data"
-                        :key="course.id"
-                        class="border-b last:border-b-0"
-                    >
-                        <td class="px-4 py-3 font-medium">{{ course.name }}</td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ course.short_name ?? '—' }}
-                        </td>
-                        <td class="px-4 py-3 text-muted-foreground">
-                            {{ course.classes_count }}
-                        </td>
-                        <td v-if="canManage" class="px-4 py-3 text-right">
-                            <Link
-                                :href="edit(course.id)"
-                                class="text-sm font-medium underline-offset-4 hover:underline"
-                            >
-                                Manage
-                            </Link>
-                        </td>
-                    </tr>
-                    <tr v-if="!courses.data.length">
-                        <td
-                            :colspan="canManage ? 4 : 3"
-                            class="px-4 py-8 text-center text-muted-foreground"
-                        >
-                            {{
-                                search
-                                    ? 'No courses match your search.'
-                                    : 'No courses yet.'
-                            }}
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div
-            v-if="courses.last_page > 1"
-            class="flex flex-wrap items-center justify-between gap-3"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Teaching"
+            title="Courses"
+            description="Subjects offered by the school and their classes."
         >
-            <p class="text-sm text-muted-foreground">
-                Page {{ courses.current_page }} of {{ courses.last_page }} ·
-                {{ courses.total }} courses
-            </p>
-            <div class="flex gap-2">
-                <Button
-                    v-if="courses.prev_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="courses.prev_page_url">Previous</Link>
+            <template #actions>
+                <Button v-if="canManage" as-child>
+                    <Link :href="create()">New course</Link>
                 </Button>
-                <Button
-                    v-if="courses.next_page_url"
-                    variant="outline"
-                    size="sm"
-                    as-child
-                >
-                    <Link :href="courses.next_page_url">Next</Link>
-                </Button>
-            </div>
-        </div>
+            </template>
+        </PageHeader>
+
+        <SearchForm
+            :url="index.url()"
+            :value="props.search"
+            placeholder="Search by course name"
+            label="Search courses"
+        />
+
+        <DataTable
+            :columns="columns"
+            :rows="props.courses.data"
+            row-key="id"
+            caption="Courses"
+            :empty-title="
+                isSearching
+                    ? 'No courses match your search.'
+                    : 'No courses yet.'
+            "
+            :empty-description="
+                isSearching
+                    ? 'Try a different course name.'
+                    : 'Add the first course to get started.'
+            "
+        >
+            <template #row="{ row }">
+                <td class="px-4 py-3 font-medium">{{ row.name }}</td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.short_name ?? '—' }}
+                </td>
+                <td class="px-4 py-3 text-muted-foreground">
+                    {{ row.classes_count }}
+                </td>
+
+                <td v-if="canManage" class="px-4 py-3 text-right">
+                    <Button variant="ghost" size="sm" as-child>
+                        <Link :href="edit(row.id)">Manage</Link>
+                    </Button>
+                </td>
+            </template>
+        </DataTable>
+
+        <DataPagination
+            :current-page="props.courses.current_page"
+            :last-page="props.courses.last_page"
+            :total="props.courses.total"
+            :prev-url="props.courses.prev_page_url"
+            :next-url="props.courses.next_page_url"
+            item-label="courses"
+        />
     </div>
 </template>

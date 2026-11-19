@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import UserAccountForm from '@/components/UserAccountForm.vue';
 import { create, index } from '@/routes/school/users';
 
@@ -27,11 +27,9 @@ defineOptions({
 <template>
     <Head title="New user" />
 
-    <h1 class="sr-only">New user</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Users"
             title="New user"
             description="Create an account that can sign in to the school system."
         />

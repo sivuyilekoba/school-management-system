@@ -2,10 +2,9 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import StaffController from '@/actions/App/Http/Controllers/School/StaffController';
-import InputError from '@/components/InputError.vue';
+import FormField from '@/components/FormField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -71,76 +70,91 @@ function submit(): void {
 <template>
     <form class="space-y-6" @submit.prevent="submit">
         <div class="grid gap-4 sm:grid-cols-2">
-            <div class="grid gap-2">
-                <Label for="first_name">First name</Label>
+            <FormField
+                label="First name"
+                field-id="first_name"
+                :error="form.errors.first_name"
+                required
+            >
                 <Input
                     id="first_name"
                     v-model="form.first_name"
                     required
                     autocomplete="given-name"
                 />
-                <InputError :message="form.errors.first_name" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="surname">Surname</Label>
+            <FormField
+                label="Surname"
+                field-id="surname"
+                :error="form.errors.surname"
+                required
+            >
                 <Input
                     id="surname"
                     v-model="form.surname"
                     required
                     autocomplete="family-name"
                 />
-                <InputError :message="form.errors.surname" />
-            </div>
+            </FormField>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <div class="grid gap-2">
-                <Label for="preferred_name">Preferred name</Label>
+            <FormField
+                label="Preferred name"
+                field-id="preferred_name"
+                :error="form.errors.preferred_name"
+                hint="Optional. Shown instead of the first name in lists."
+            >
                 <Input
                     id="preferred_name"
                     v-model="form.preferred_name"
                     autocomplete="nickname"
                 />
-                <p class="text-sm text-muted-foreground">
-                    Optional. Shown instead of the first name in lists.
-                </p>
-                <InputError :message="form.errors.preferred_name" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="job_title">Job title</Label>
+            <FormField
+                label="Job title"
+                field-id="job_title"
+                :error="form.errors.job_title"
+            >
                 <Input id="job_title" v-model="form.job_title" />
-                <InputError :message="form.errors.job_title" />
-            </div>
+            </FormField>
         </div>
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <div class="grid gap-2">
-                <Label for="email">Email address</Label>
+            <FormField
+                label="Email address"
+                field-id="email"
+                :error="form.errors.email"
+            >
                 <Input
                     id="email"
                     v-model="form.email"
                     type="email"
                     autocomplete="email"
                 />
-                <InputError :message="form.errors.email" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="phone">Phone</Label>
+            <FormField
+                label="Phone"
+                field-id="phone"
+                :error="form.errors.phone"
+            >
                 <Input
                     id="phone"
                     v-model="form.phone"
                     type="tel"
                     autocomplete="tel"
                 />
-                <InputError :message="form.errors.phone" />
-            </div>
+            </FormField>
         </div>
 
-        <div class="grid gap-2">
-            <Label for="user_id">Linked account</Label>
+        <FormField
+            label="Linked account"
+            field-id="user_id"
+            :error="form.errors.user_id"
+        >
             <Select v-model="accountId">
                 <SelectTrigger id="user_id" class="w-full">
                     <SelectValue placeholder="No linked account" />
@@ -156,8 +170,7 @@ function submit(): void {
                     </SelectItem>
                 </SelectContent>
             </Select>
-            <InputError :message="form.errors.user_id" />
-        </div>
+        </FormField>
 
         <div class="flex items-center gap-4">
             <Button :disabled="form.processing" data-test="save-staff">

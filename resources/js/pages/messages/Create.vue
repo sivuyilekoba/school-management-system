@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -61,11 +61,9 @@ function submit(): void {
 <template>
     <Head title="New message" />
 
-    <h1 class="sr-only">New message</h1>
-
-    <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+    <div class="flex max-w-2xl flex-col gap-6">
+        <PageHeader
+            eyebrow="Messages"
             title="New message"
             description="Send a direct message to a member of staff, a student, or a family."
         />

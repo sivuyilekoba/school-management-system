@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
-import { Badge } from '@/components/ui/badge';
+import PageHeader from '@/components/PageHeader.vue';
 import { Button } from '@/components/ui/button';
 import { index } from '@/routes/portal/announcements';
 
@@ -37,24 +36,22 @@ defineOptions({
 <template>
     <Head :title="announcement.title" />
 
-    <h1 class="sr-only">Announcement</h1>
+    <div class="flex max-w-3xl flex-col gap-8">
+        <PageHeader
+            eyebrow="Announcement"
+            :title="announcement.title"
+            :description="`${announcement.audience_label} · ${announcement.published_at ?? 'Not dated'}`"
+        >
+            <template #actions>
+                <Button variant="outline" as-child>
+                    <Link :href="index()">Back to announcements</Link>
+                </Button>
+            </template>
+        </PageHeader>
 
-    <div class="flex max-w-3xl flex-col space-y-8">
-        <div class="flex flex-wrap items-start justify-between gap-4">
-            <div class="space-y-3">
-                <Badge variant="outline">
-                    {{ announcement.audience_label }}
-                </Badge>
-
-                <Heading variant="small" :title="announcement.title" />
-            </div>
-
-            <Button variant="outline" as-child>
-                <Link :href="index()">Back to announcements</Link>
-            </Button>
-        </div>
-
-        <div class="rounded-lg border p-6 text-sm whitespace-pre-line">
+        <div
+            class="rounded-xl border bg-card p-6 text-sm whitespace-pre-line shadow-card"
+        >
             {{ announcement.body }}
         </div>
 

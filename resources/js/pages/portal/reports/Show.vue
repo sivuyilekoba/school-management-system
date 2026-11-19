@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import ReportCardDetails from '@/components/ReportCardDetails.vue';
 import type {
     AttendanceCounts,
@@ -63,17 +63,13 @@ defineOptions({
 <template>
     <Head :title="`Report card for ${student.name}`" />
 
-    <h1 class="sr-only">Report card</h1>
-
-    <div class="flex flex-col space-y-8">
-        <div class="flex flex-wrap items-end justify-between gap-4">
-            <Heading
-                variant="small"
-                :title="`Report card for ${student.name}`"
-                :description="`${term.school_year.name} · ${term.name} · ${term.start_date} to ${term.end_date}`"
-            />
-
-            <div class="flex flex-wrap items-center gap-2">
+    <div class="flex flex-col gap-8">
+        <PageHeader
+            eyebrow="Report card"
+            :title="`Report card for ${student.name}`"
+            :description="`${term.school_year.name} · ${term.name} · ${term.start_date} to ${term.end_date}`"
+        >
+            <template #actions>
                 <Button variant="outline" as-child>
                     <a
                         :href="
@@ -105,8 +101,8 @@ defineOptions({
                 <Button variant="outline" as-child>
                     <Link :href="index()">Back to report cards</Link>
                 </Button>
-            </div>
-        </div>
+            </template>
+        </PageHeader>
 
         <ReportCardDetails
             :term="term"

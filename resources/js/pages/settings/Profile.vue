@@ -3,7 +3,7 @@ import { Form, Head, usePage } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import ProfileController from '@/actions/App/Http/Controllers/Settings/ProfileController';
 import DeleteUser from '@/components/DeleteUser.vue';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import InputError from '@/components/InputError.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,11 +28,9 @@ const user = computed(() => page.props.auth.user);
 <template>
     <Head title="Profile settings" />
 
-    <h1 class="sr-only">Profile settings</h1>
-
-    <div class="flex flex-col space-y-6">
-        <Heading
-            variant="small"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Settings"
             title="Profile"
             description="Update your name and email address"
         />

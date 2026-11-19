@@ -2,10 +2,9 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import TimetableEntryController from '@/actions/App/Http/Controllers/School/TimetableEntryController';
-import InputError from '@/components/InputError.vue';
+import FormField from '@/components/FormField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import {
     Select,
     SelectContent,
@@ -96,8 +95,12 @@ function submit(): void {
         </p>
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <div class="grid gap-2">
-                <Label for="day_of_week">Day</Label>
+            <FormField
+                label="Day"
+                field-id="day_of_week"
+                :error="form.errors.day_of_week"
+                required
+            >
                 <Select v-model="dayValue">
                     <SelectTrigger id="day_of_week" class="w-full">
                         <SelectValue placeholder="Select a day" />
@@ -112,11 +115,14 @@ function submit(): void {
                         </SelectItem>
                     </SelectContent>
                 </Select>
-                <InputError :message="form.errors.day_of_week" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="timetable_period_id">Period</Label>
+            <FormField
+                label="Period"
+                field-id="timetable_period_id"
+                :error="form.errors.timetable_period_id"
+                required
+            >
                 <Select v-model="periodValue">
                     <SelectTrigger id="timetable_period_id" class="w-full">
                         <SelectValue placeholder="Select a period" />
@@ -133,15 +139,12 @@ function submit(): void {
                         </SelectItem>
                     </SelectContent>
                 </Select>
-                <InputError :message="form.errors.timetable_period_id" />
-            </div>
+            </FormField>
         </div>
 
-        <div class="grid gap-2">
-            <Label for="room">Room</Label>
+        <FormField label="Room" field-id="room" :error="form.errors.room">
             <Input id="room" v-model="form.room" placeholder="e.g. Room 12" />
-            <InputError :message="form.errors.room" />
-        </div>
+        </FormField>
 
         <div class="flex items-center gap-4">
             <Button :disabled="form.processing" data-test="save-entry">

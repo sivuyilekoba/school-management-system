@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head, Link, router } from '@inertiajs/vue3';
 import TimetableEntryController from '@/actions/App/Http/Controllers/School/TimetableEntryController';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import TimetableEntryForm from '@/components/TimetableEntryForm.vue';
 import type {
     DayOption,
@@ -54,11 +54,9 @@ function destroy(): void {
 <template>
     <Head :title="`Edit lesson for ${courseClass.name}`" />
 
-    <h1 class="sr-only">Edit lesson</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Timetable lesson"
             :title="`Edit lesson for ${courseClass.name}`"
             description="Update when and where this lesson takes place."
         />

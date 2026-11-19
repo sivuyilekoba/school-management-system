@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import AppearanceTabs from '@/components/AppearanceTabs.vue';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { edit } from '@/routes/appearance';
 
 defineOptions({
@@ -19,11 +19,9 @@ defineOptions({
 <template>
     <Head title="Appearance settings" />
 
-    <h1 class="sr-only">Appearance settings</h1>
-
-    <div class="space-y-6">
-        <Heading
-            variant="small"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Settings"
             title="Appearance settings"
             description="Update the appearance settings for your account"
         />

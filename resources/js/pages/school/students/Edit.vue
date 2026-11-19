@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
 import StudentController from '@/actions/App/Http/Controllers/School/StudentController';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import LoginAccountPanel from '@/components/LoginAccountPanel.vue';
 import type { LoginAccount } from '@/components/LoginAccountPanel.vue';
 import StudentForm from '@/components/StudentForm.vue';
@@ -39,11 +39,9 @@ defineOptions({
 <template>
     <Head :title="`Edit ${student.first_name} ${student.surname}`" />
 
-    <h1 class="sr-only">Edit student</h1>
-
     <div class="flex max-w-2xl flex-col space-y-8">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Students"
             :title="`Edit ${student.first_name} ${student.surname}`"
             description="Update the student record and account link."
         />

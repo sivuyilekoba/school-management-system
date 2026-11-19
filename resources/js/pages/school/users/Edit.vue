@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Head } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import UserAccountForm from '@/components/UserAccountForm.vue';
 import { index } from '@/routes/school/users';
 
@@ -35,11 +35,9 @@ defineOptions({
 <template>
     <Head :title="`Edit ${user.name}`" />
 
-    <h1 class="sr-only">Edit user</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Users"
             :title="`Edit ${user.name}`"
             description="Update the account details and roles for this user."
         />

@@ -2,7 +2,7 @@
 import { Head, Link } from '@inertiajs/vue3';
 import CourseClassForm from '@/components/CourseClassForm.vue';
 import type { StaffOption } from '@/components/CourseClassForm.vue';
-import Heading from '@/components/Heading.vue';
+import PageHeader from '@/components/PageHeader.vue';
 import { edit as editCourse, index } from '@/routes/school/courses';
 
 defineProps<{
@@ -36,11 +36,9 @@ defineOptions({
 <template>
     <Head :title="`New class for ${course.name}`" />
 
-    <h1 class="sr-only">New class</h1>
-
     <div class="flex max-w-2xl flex-col space-y-6">
-        <Heading
-            variant="small"
+        <PageHeader
+            eyebrow="Class"
             :title="`New class for ${course.name}`"
             description="Create a teaching group and optionally assign a teacher."
         />

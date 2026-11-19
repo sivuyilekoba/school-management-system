@@ -2,10 +2,9 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import CourseController from '@/actions/App/Http/Controllers/School/CourseController';
-import InputError from '@/components/InputError.vue';
+import FormField from '@/components/FormField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 export type CourseRecord = {
     id: number;
@@ -42,30 +41,38 @@ function submit(): void {
 <template>
     <form class="space-y-6" @submit.prevent="submit">
         <div class="grid gap-4 sm:grid-cols-[2fr_1fr]">
-            <div class="grid gap-2">
-                <Label for="name">Course name</Label>
+            <FormField
+                label="Course name"
+                field-id="name"
+                :error="form.errors.name"
+                required
+            >
                 <Input
                     id="name"
                     v-model="form.name"
                     required
                     placeholder="e.g. Mathematics"
                 />
-                <InputError :message="form.errors.name" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="short_name">Short name</Label>
+            <FormField
+                label="Short name"
+                field-id="short_name"
+                :error="form.errors.short_name"
+            >
                 <Input
                     id="short_name"
                     v-model="form.short_name"
                     placeholder="e.g. MATH"
                 />
-                <InputError :message="form.errors.short_name" />
-            </div>
+            </FormField>
         </div>
 
-        <div class="grid gap-2">
-            <Label for="description">Description</Label>
+        <FormField
+            label="Description"
+            field-id="description"
+            :error="form.errors.description"
+        >
             <textarea
                 id="description"
                 v-model="form.description"
@@ -73,8 +80,7 @@ function submit(): void {
                 class="block w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 dark:bg-input/30"
                 placeholder="Optional summary of this course"
             />
-            <InputError :message="form.errors.description" />
-        </div>
+        </FormField>
 
         <div class="flex items-center gap-4">
             <Button :disabled="form.processing" data-test="save-course">

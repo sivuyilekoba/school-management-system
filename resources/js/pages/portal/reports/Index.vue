@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import Heading from '@/components/Heading.vue';
-import { Badge } from '@/components/ui/badge';
+import EmptyState from '@/components/EmptyState.vue';
+import PageHeader from '@/components/PageHeader.vue';
+import StatusBadge from '@/components/StatusBadge.vue';
 import { index, show } from '@/routes/portal/reports';
 
 type StudentRow = {
@@ -45,16 +46,17 @@ defineOptions({
 <template>
     <Head title="Report cards" />
 
-    <h1 class="sr-only">Report cards</h1>
-
-    <div class="flex flex-col space-y-6">
-        <Heading
-            variant="small"
+    <div class="flex flex-col gap-6">
+        <PageHeader
+            eyebrow="Portal"
             title="Report cards"
             description="Published term report cards. Draft report cards stay hidden until the school publishes them."
         />
 
-        <div v-if="reportCards.length" class="divide-y rounded-lg border">
+        <div
+            v-if="reportCards.length"
+            class="divide-y overflow-hidden rounded-xl border bg-card shadow-card"
+        >
             <Link
                 v-for="reportCard in reportCards"
                 :key="reportCard.id"
@@ -67,9 +69,7 @@ defineOptions({
                 class="flex flex-wrap items-center justify-between gap-3 px-4 py-4 transition-colors hover:bg-muted/40"
             >
                 <div class="space-y-1">
-                    <p class="font-medium">
-                        {{ reportCard.student.name }}
-                    </p>
+                    <p class="font-medium">{{ reportCard.student.name }}</p>
                     <p class="text-sm text-muted-foreground">
                         {{ reportCard.term.school_year }} ·
                         {{ reportCard.term.name }} ·
@@ -79,7 +79,7 @@ defineOptions({
                 </div>
 
                 <div class="flex items-center gap-3">
-                    <Badge variant="default">Published</Badge>
+                    <StatusBadge label="Published" tone="success" />
                     <span class="text-xs text-muted-foreground">
                         {{ reportCard.published_at ?? '' }}
                     </span>
@@ -87,19 +87,14 @@ defineOptions({
             </Link>
         </div>
 
-        <div
+        <EmptyState
             v-else
-            class="rounded-lg border px-4 py-8 text-center text-sm text-muted-foreground"
-        >
-            <p>
-                No report cards have been published for
-                {{ students.length === 1 ? 'this student' : 'your students' }}
-                yet.
-            </p>
-            <p v-if="!students.length" class="mt-2">
-                No student record is linked to this account. Contact the school
-                office.
-            </p>
-        </div>
+            :title="`No report cards have been published for ${students.length === 1 ? 'this student' : 'your students'} yet.`"
+            :description="
+                students.length
+                    ? 'Published report cards will appear here.'
+                    : 'No student record is linked to this account. Contact the school office.'
+            "
+        />
     </div>
 </template>

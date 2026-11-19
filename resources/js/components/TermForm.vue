@@ -2,10 +2,9 @@
 import { useForm } from '@inertiajs/vue3';
 import { computed } from 'vue';
 import TermController from '@/actions/App/Http/Controllers/School/TermController';
-import InputError from '@/components/InputError.vue';
+import FormField from '@/components/FormField.vue';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 
 export type TermRecord = {
     id: number;
@@ -57,39 +56,48 @@ function submit(): void {
             {{ schoolYear.end_date }}).
         </p>
 
-        <div class="grid gap-2">
-            <Label for="name">Term name</Label>
+        <FormField
+            label="Term name"
+            field-id="name"
+            :error="form.errors.name"
+            required
+        >
             <Input
                 id="name"
                 v-model="form.name"
                 required
                 placeholder="e.g. Term 1"
             />
-            <InputError :message="form.errors.name" />
-        </div>
+        </FormField>
 
         <div class="grid gap-4 sm:grid-cols-2">
-            <div class="grid gap-2">
-                <Label for="start_date">Start date</Label>
+            <FormField
+                label="Start date"
+                field-id="start_date"
+                :error="form.errors.start_date"
+                required
+            >
                 <Input
                     id="start_date"
                     v-model="form.start_date"
                     type="date"
                     required
                 />
-                <InputError :message="form.errors.start_date" />
-            </div>
+            </FormField>
 
-            <div class="grid gap-2">
-                <Label for="end_date">End date</Label>
+            <FormField
+                label="End date"
+                field-id="end_date"
+                :error="form.errors.end_date"
+                required
+            >
                 <Input
                     id="end_date"
                     v-model="form.end_date"
                     type="date"
                     required
                 />
-                <InputError :message="form.errors.end_date" />
-            </div>
+            </FormField>
         </div>
 
         <div class="flex items-center gap-4">
