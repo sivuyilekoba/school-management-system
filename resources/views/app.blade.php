@@ -3,6 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="color-scheme" content="light dark">
 
         {{-- Inline script to detect system dark mode preference and apply it immediately --}}
         <script>
@@ -19,14 +20,14 @@
             })();
         </script>
 
-        {{-- Inline style to set the HTML background color based on our theme in app.css --}}
+        {{-- Inline style to paint the canvas before app.css loads and avoid a flash --}}
         <style>
             html {
-                background-color: oklch(1 0 0);
+                background-color: oklch(0.99 0.004 160);
             }
 
             html.dark {
-                background-color: oklch(0.145 0 0);
+                background-color: oklch(0.17 0.012 165);
             }
         </style>
 
@@ -42,6 +43,8 @@
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
+        <a href="#main-content" class="skip-link">Skip to main content</a>
+
         <x-inertia::app />
     </body>
 </html>

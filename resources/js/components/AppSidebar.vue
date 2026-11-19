@@ -127,153 +127,185 @@ const messageNavItem = computed<NavItem>(() => ({
     icon: MessageCircle,
 }));
 
-const mainNavItems = computed<NavItem[]>(() => {
+type NavGroup = {
+    label: string;
+    items: NavItem[];
+};
+
+const mainNavGroups = computed<NavGroup[]>(() => {
     if (isPortalUser.value) {
         return [
             {
-                title: 'Dashboard',
-                href: portalDashboard(),
-                icon: LayoutGrid,
+                label: 'Portal',
+                items: [
+                    {
+                        title: 'Dashboard',
+                        href: portalDashboard(),
+                        icon: LayoutGrid,
+                    },
+                    {
+                        title: 'Announcements',
+                        href: portalAnnouncements(),
+                        icon: Megaphone,
+                    },
+                    {
+                        title: 'Report cards',
+                        href: portalReports(),
+                        icon: FileText,
+                    },
+                    messageNavItem.value,
+                ],
             },
-            {
-                title: 'Announcements',
-                href: portalAnnouncements(),
-                icon: Megaphone,
-            },
-            {
-                title: 'Report cards',
-                href: portalReports(),
-                icon: FileText,
-            },
-            messageNavItem.value,
         ];
     }
 
-    return [
+    const groups: NavGroup[] = [
         {
-            title: 'Dashboard',
-            href: dashboard(),
-            icon: LayoutGrid,
+            label: 'Overview',
+            items: [
+                {
+                    title: 'Dashboard',
+                    href: dashboard(),
+                    icon: LayoutGrid,
+                },
+                ...(canViewMessages.value ? [messageNavItem.value] : []),
+            ],
         },
-        ...(canViewCalendar.value
-            ? [
-                  {
-                      title: 'Calendar',
-                      href: calendar(),
-                      icon: CalendarDays,
-                  },
-              ]
-            : []),
-        ...(canViewCourses.value
-            ? [
-                  {
-                      title: 'Courses',
-                      href: courses(),
-                      icon: BookOpen,
-                  },
-              ]
-            : []),
-        ...(canViewTimetable.value
-            ? [
-                  {
-                      title: 'Timetable',
-                      href: timetable(),
-                      icon: CalendarClock,
-                  },
-              ]
-            : []),
-        ...(canViewAttendance.value
-            ? [
-                  {
-                      title: 'Attendance',
-                      href: attendance(),
-                      icon: ClipboardCheck,
-                  },
-              ]
-            : []),
-        ...(canViewAssessment.value
-            ? [
-                  {
-                      title: 'Assessment',
-                      href: assessment(),
-                      icon: ClipboardList,
-                  },
-              ]
-            : []),
-        ...(canViewReports.value
-            ? [
-                  {
-                      title: 'Report cards',
-                      href: reports(),
-                      icon: FileText,
-                  },
-              ]
-            : []),
-        ...(canViewAnnouncements.value
-            ? [
-                  {
-                      title: 'Announcements',
-                      href: announcements(),
-                      icon: Megaphone,
-                  },
-              ]
-            : []),
-        ...(canViewMessages.value ? [messageNavItem.value] : []),
-        ...(canViewStudents.value
-            ? [
-                  {
-                      title: 'Students',
-                      href: students(),
-                      icon: GraduationCap,
-                  },
-              ]
-            : []),
-        ...(canViewStaff.value
-            ? [
-                  {
-                      title: 'Staff',
-                      href: staff(),
-                      icon: Briefcase,
-                  },
-              ]
-            : []),
-        ...(canViewFamilies.value
-            ? [
-                  {
-                      title: 'Families',
-                      href: families(),
-                      icon: House,
-                  },
-              ]
-            : []),
-        ...(canViewUsers.value
-            ? [
-                  {
-                      title: 'Users',
-                      href: users(),
-                      icon: Users,
-                  },
-              ]
-            : []),
-        ...(canManageSettings.value
-            ? [
-                  {
-                      title: 'School settings',
-                      href: editSchoolSettings(),
-                      icon: Settings,
-                  },
-              ]
-            : []),
-        ...(canManagePermissions.value
-            ? [
-                  {
-                      title: 'Permissions',
-                      href: editSchoolPermissions(),
-                      icon: ShieldCheck,
-                  },
-              ]
-            : []),
+        {
+            label: 'Teaching',
+            items: [
+                ...(canViewCalendar.value
+                    ? [
+                          {
+                              title: 'Calendar',
+                              href: calendar(),
+                              icon: CalendarDays,
+                          },
+                      ]
+                    : []),
+                ...(canViewCourses.value
+                    ? [
+                          {
+                              title: 'Courses',
+                              href: courses(),
+                              icon: BookOpen,
+                          },
+                      ]
+                    : []),
+                ...(canViewTimetable.value
+                    ? [
+                          {
+                              title: 'Timetable',
+                              href: timetable(),
+                              icon: CalendarClock,
+                          },
+                      ]
+                    : []),
+                ...(canViewAttendance.value
+                    ? [
+                          {
+                              title: 'Attendance',
+                              href: attendance(),
+                              icon: ClipboardCheck,
+                          },
+                      ]
+                    : []),
+                ...(canViewAssessment.value
+                    ? [
+                          {
+                              title: 'Assessment',
+                              href: assessment(),
+                              icon: ClipboardList,
+                          },
+                      ]
+                    : []),
+                ...(canViewReports.value
+                    ? [
+                          {
+                              title: 'Report cards',
+                              href: reports(),
+                              icon: FileText,
+                          },
+                      ]
+                    : []),
+            ],
+        },
+        {
+            label: 'People',
+            items: [
+                ...(canViewStudents.value
+                    ? [
+                          {
+                              title: 'Students',
+                              href: students(),
+                              icon: GraduationCap,
+                          },
+                      ]
+                    : []),
+                ...(canViewStaff.value
+                    ? [
+                          {
+                              title: 'Staff',
+                              href: staff(),
+                              icon: Briefcase,
+                          },
+                      ]
+                    : []),
+                ...(canViewFamilies.value
+                    ? [
+                          {
+                              title: 'Families',
+                              href: families(),
+                              icon: House,
+                          },
+                      ]
+                    : []),
+                ...(canViewUsers.value
+                    ? [
+                          {
+                              title: 'Users',
+                              href: users(),
+                              icon: Users,
+                          },
+                      ]
+                    : []),
+            ],
+        },
+        {
+            label: 'School',
+            items: [
+                ...(canViewAnnouncements.value
+                    ? [
+                          {
+                              title: 'Announcements',
+                              href: announcements(),
+                              icon: Megaphone,
+                          },
+                      ]
+                    : []),
+                ...(canManageSettings.value
+                    ? [
+                          {
+                              title: 'School settings',
+                              href: editSchoolSettings(),
+                              icon: Settings,
+                          },
+                      ]
+                    : []),
+                ...(canManagePermissions.value
+                    ? [
+                          {
+                              title: 'Permissions',
+                              href: editSchoolPermissions(),
+                              icon: ShieldCheck,
+                          },
+                      ]
+                    : []),
+            ],
+        },
     ];
+
+    return groups.filter((group) => group.items.length > 0);
 });
 </script>
 
@@ -292,7 +324,12 @@ const mainNavItems = computed<NavItem[]>(() => {
         </SidebarHeader>
 
         <SidebarContent>
-            <NavMain :items="mainNavItems" />
+            <NavMain
+                v-for="group in mainNavGroups"
+                :key="group.label"
+                :label="group.label"
+                :items="group.items"
+            />
         </SidebarContent>
 
         <SidebarFooter>
