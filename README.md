@@ -36,40 +36,16 @@ Required PHP extensions: `pdo_sqlite` (or `pdo_mysql` / `pdo_pgsql`), `mbstring`
 
 ## Installation
 
-### 1. Clone the repository
+### Shortcut (recommended)
+
+Clone the repository and enter the project directory:
 
 ```bash
-git clone <repository-url> school-management-system
+git clone https://github.com/sivuyilekoba/school-management-system.git
 cd school-management-system
 ```
 
-### 2. Install PHP dependencies
-
-```bash
-composer install
-```
-
-`composer install` copies `.env.example` to `.env` for you on a fresh clone. If it does not, create it manually:
-
-```bash
-cp .env.example .env
-```
-
-On Windows PowerShell:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-### 3. Generate the application key
-
-```bash
-php artisan key:generate
-```
-
-### 4. Prepare the database
-
-For the default SQLite database, create the database file before migrating — it is not committed to the repository:
+For the default SQLite database, create the database file before running setup — it is not committed to the repository:
 
 ```bash
 # macOS / Linux
@@ -81,32 +57,62 @@ touch database/database.sqlite
 New-Item database/database.sqlite -ItemType File
 ```
 
-See [Database setup](#database-setup) for MySQL/PostgreSQL configuration.
-
-### 5. Run migrations and seed the demo data
-
-```bash
-php artisan migrate
-php artisan db:seed
-```
-
-### 6. Install and build the frontend
-
-```bash
-npm install
-npm run build
-```
-
-### Shortcut
-
-Once the SQLite file exists, `composer setup` performs steps 2–6 in one command (installs PHP and npm dependencies, creates `.env`, generates the key, migrates, and builds assets):
+Then run setup and seed:
 
 ```bash
 composer setup
 php artisan db:seed
 ```
 
-`composer setup` does **not** seed the database, so run `php artisan db:seed` separately.
+`composer setup` installs the PHP and npm dependencies, creates `.env`, generates the application key, migrates the database and builds the frontend assets. It does **not** seed the database, so `php artisan db:seed` must be run separately. See [Database setup](#database-setup) if you are using MySQL or PostgreSQL.
+
+### Manual setup
+
+If you prefer to run each step yourself, start by cloning the repository (skip this if you already cloned it above):
+
+```bash
+git clone https://github.com/sivuyilekoba/school-management-system.git
+cd school-management-system
+```
+
+1. **Install PHP dependencies**
+
+   ```bash
+   composer install
+   ```
+
+   `composer install` copies `.env.example` to `.env` for you on a fresh clone. If it does not, create it manually:
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   On Windows PowerShell: `Copy-Item .env.example .env`
+
+2. **Generate the application key**
+
+   ```bash
+   php artisan key:generate
+   ```
+
+3. **Prepare the database** — create `database/database.sqlite` as shown in the shortcut section above, then run:
+
+   ```bash
+   php artisan migrate
+   ```
+
+4. **Seed the demo data**
+
+   ```bash
+   php artisan db:seed
+   ```
+
+5. **Install and build the frontend**
+
+   ```bash
+   npm install
+   npm run build
+   ```
 
 ## Database setup
 
